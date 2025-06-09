@@ -205,6 +205,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
             dur_list.append((end_time - start_time))
         print("---------------------------")
         print("seq_len: {:<20} time: {:<10.2f}s".format(seq_len, np.mean(dur_list)))
+        print("time list: {}".format(", ".join([":.2f".format(dur) for dur in dur_list])))
         print("---------------------------")
         ret_list.append({
             "model": model_name_to_saving_name[model_name],
