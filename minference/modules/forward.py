@@ -203,7 +203,7 @@ def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
         return flash_attn_func(
             query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2),
                 0.0, softmax_scale=None, causal=q_len != 1,
-        ).view(bsz, head_num, q_len, head_dim)
+        ).transpose(1, 2)
     else:
         return tri_shape_kernel(query_states, key_states, value_states, prefill_kwargs)
 
