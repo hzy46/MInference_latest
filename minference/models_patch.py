@@ -97,6 +97,13 @@ class MInference:
             self.config.attn_kwargs.setdefault("n_last", 100)
             model = new_patch(model, self.config)
 
+        elif self.config.attn_type == "tri_mix":
+            self.config.attn_kwargs.setdefault("n_local", 512)
+            self.config.attn_kwargs.setdefault("n_init", 8)
+            self.config.attn_kwargs.setdefault("n_last", 128)
+            self.config.attn_kwargs.setdefault("starting_layer", 16)
+            model = new_patch(model, self.config)
+
         elif self.config.attn_type in ["flexprefill", "dense", "xattention"]:
             model = new_patch(model, self.config)
 

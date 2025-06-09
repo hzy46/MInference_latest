@@ -26,6 +26,7 @@ class MInferenceConfig:
         "flexprefill",
         "vllm_flexprefill",
         "xattention",
+        "tri_mix",
     ]
     KV_TYPES = [
         "dense",
