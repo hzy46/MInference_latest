@@ -130,8 +130,8 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
         kwargs = dict(attn_type="dense")
     elif method == "tri_mix":
         kwargs = dict(
-            attn_type="tri_shape_mix",
-            attn_kwargs={"last_n": 128, "tri_shape_start_layer": tri_shape_start_layer, "n_local": 512, "n_init": 8},
+            attn_type="tri_mix",
+            attn_kwargs={"last_n": 128, "starting_layer": tri_shape_start_layer, "n_local": 512, "n_init": 8},
         )
     elif method == "minference":
         kwargs = dict(
