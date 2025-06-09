@@ -88,6 +88,7 @@ class MInferenceModel:
         kv_type: str = "",
         trust_remote_code: bool = False,
         attn_type: str = "minference",
+        attn_kwargs: dict = {},
     ) -> None:
         from transformers import (
             AutoConfig,
@@ -120,6 +121,7 @@ class MInferenceModel:
             kv_cache_cpu=kv_cache_cpu,
             kv_cache_cpu_device=kv_cache_cpu_device,
             is_search=False,
+            attn_kwargs=attn_kwargs,
         )
         self.model = minference_patch(model)
 

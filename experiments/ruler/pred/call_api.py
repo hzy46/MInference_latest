@@ -218,6 +218,7 @@ def get_llm(tokens_to_generate):
             trust_remote_code=args.trust_remote_code,
             starting_layer=args.starting_layer,
             attn_type=args.attn_type,
+            attn_kwargs=args.attn_kwargs,
         )
 
     elif args.server_type == "InfLLM":
