@@ -114,10 +114,8 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
 
 
 def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
-    if "262k" in model_name:
-        seq_len_list = [4000, 8000, 16000, 32000, 64000, 128000]
-    else:
-        seq_len_list = [4000, 8000, 16000, 32000, 64000, 128000]
+    # seq_len_list = [4000, 8000, 16000, 32000, 64000, 128000]
+    seq_len_list = [16000]
     if model_name == "meta-llama/Llama-3.1-8B-Instruct":
         tri_shape_start_layer = 16
     elif model_name == "gradientai/Llama-3-8B-Instruct-262k":
@@ -181,10 +179,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
     )
 
     model = minference_patch(model)
-    if "262k" in model_name:
-        samples = quick_get_random_kv_samples(model_name, tokenizer, 3000, n_kv_num=6000, n_sample=n_times)
-    else:
-        samples = quick_get_random_kv_samples(model_name, tokenizer, 1500, n_kv_num=3000, n_sample=n_times)
+    samples = quick_get_random_kv_samples(model_name, tokenizer, 3000, n_kv_num=6000, n_sample=n_times)
 
     # warmup
     input_ids = samples[0]["input_ids"][:32000]
