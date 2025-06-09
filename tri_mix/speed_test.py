@@ -117,11 +117,11 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
     seq_len_list = [4000, 8000, 16000, 32000, 64000, 128000]
     # seq_len_list = [16000]
     if model_name == "meta-llama/Llama-3.1-8B-Instruct":
-        tri_shape_start_layer = 16
+        starting_layer = 16
     elif model_name == "gradientai/Llama-3-8B-Instruct-262k":
-        tri_shape_start_layer = 16
+        starting_layer = 16
     elif model_name == "Qwen/Qwen2.5-7B-Instruct":
-        tri_shape_start_layer = 20
+        starting_layer = 20
     else:
         raise NotImplementedError
 
@@ -131,7 +131,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
     elif method == "tri_mix":
         kwargs = dict(
             attn_type="tri_mix",
-            attn_kwargs={"last_n": 128, "starting_layer": tri_shape_start_layer, "n_local": 512, "n_init": 8},
+            attn_kwargs={"last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
         )
     elif method == "minference":
         kwargs = dict(
@@ -144,7 +144,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
     elif method == "minference_mix":
         kwargs = dict(
             attn_type="minference_mix",
-            attn_kwargs={"last_n": 128, "starting_layer": tri_shape_start_layer, "n_local": 512, "n_init": 8},
+            attn_kwargs={"last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
         )
     else:
         raise NotImplementedError
@@ -204,8 +204,8 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
             torch.cuda.empty_cache()
             dur_list.append((end_time - start_time))
         print("---------------------------")
-        print("seq_len: {:<20} time: {:<10.2f}s".format(seq_len, np.mean(dur_list)))
-        print("time list: {}".format(", ".join([":.2f".format(dur) for dur in dur_list])))
+        print("seq_len: {:<20} time: {:.2f}s".format(seq_len, np.mean(dur_list)))
+        print("time list: {}".format(", ".join(["{:.2f}s".format(dur) for dur in dur_list])))
         print("---------------------------")
         ret_list.append({
             "model": model_name_to_saving_name[model_name],
