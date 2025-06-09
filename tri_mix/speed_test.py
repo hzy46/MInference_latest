@@ -114,7 +114,7 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
 
 
 def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
-    seq_len_list = [4000, 8000, 16000, 32000, 64000]
+    seq_len_list = [4000, 8000, 16000, 32000, 64000, 128000]
     # seq_len_list = [16000]
     if model_name == "meta-llama/Llama-3.1-8B-Instruct":
         tri_shape_start_layer = 16
@@ -144,13 +144,10 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
     elif method == "minference_mix":
         kwargs = dict(
             attn_type="minference_mix",
-            attn_kwargs={"last_n": 128, "tri_shape_start_layer": tri_shape_start_layer, "n_local": 512, "n_init": 8},
+            attn_kwargs={"last_n": 128, "starting_layer": tri_shape_start_layer, "n_local": 512, "n_init": 8},
         )
-    elif method == "flexprefill_mix":
-        kwargs = dict(
-            attn_type="flexprefill_mix",
-            attn_kwargs={"last_n": 128, "tri_shape_start_layer": tri_shape_start_layer, "n_local": 512, "n_init": 8},
-        )
+    else:
+        raise NotImplementedError
 
     model_name_to_saving_name = {
         "meta-llama/Llama-3.1-8B-Instruct": "Llama-3.1-8B-Instruct",
@@ -182,11 +179,12 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
     samples = quick_get_random_kv_samples(model_name, tokenizer, 3000, n_kv_num=6000, n_sample=n_times)
 
     # warmup
-    input_ids = samples[0]["input_ids"][:32000]
-    input_ids = torch.tensor([input_ids], device=model.device)
-    with torch.no_grad():
-        model(input_ids, use_cache=False)
-    torch.cuda.empty_cache()
+    for seq_len in seq_len_list:
+        input_ids = samples[0]["input_ids"][:seq_len]
+        input_ids = torch.tensor([input_ids], device=model.device)
+        with torch.no_grad():
+            model(input_ids, use_cache=False)
+        torch.cuda.empty_cache()
 
     # start test
     ret_list = []
@@ -206,7 +204,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
             torch.cuda.empty_cache()
             dur_list.append((end_time - start_time))
         print("---------------------------")
-        print("seq_len: {:<20} time: {:<10.2f}".format(seq_len, np.mean(dur_list)))
+        print("seq_len: {:<20} time: {:<10.2f}s".format(seq_len, np.mean(dur_list)))
         print("---------------------------")
         ret_list.append({
             "model": model_name_to_saving_name[model_name],
