@@ -128,13 +128,7 @@ def attn_forward(
                 value_states,
                 prefill_kwargs,
             )
-            if isinstance(attn_output, tuple):
-                attn_output, need_transpose = attn_output
-                if need_transpose:
-                    attn_output = attn_output.transpose(1, 2).contiguous()
-            else:
-                # attn_output = attn_output.transpose(1, 2).contiguous()
-                attn_output = attn_output.transpose(1, 2)
+            attn_output = attn_output.transpose(1, 2).contiguous()
         else:  # if not specified, use flash attention
             attn_output = _flash_attention_forward(  # [bsz, q_len, num_heads, head_dim]
                 query_states.transpose(1, 2),
@@ -208,7 +202,7 @@ def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
         return flash_attn_func(
             query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2),
                 0.0, softmax_scale=None, causal=q_len != 1,
-        ), False
+        ).transpose(1, 2)
     else:
         return tri_shape_kernel(query_states, key_states, value_states, prefill_kwargs)
 
