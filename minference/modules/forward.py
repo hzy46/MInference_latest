@@ -207,7 +207,6 @@ def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
     else:
         return tri_shape_kernel(query_states, key_states, value_states, prefill_kwargs)
 
-
 prefill_forwards = {  # None = use flash attention
     "dense": None,
     "a_shape": a_shape_kernel,
