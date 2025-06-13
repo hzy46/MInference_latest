@@ -132,19 +132,6 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
             attn_type="tri_mix",
             attn_kwargs={"last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
         )
-    elif method == "minference":
-        kwargs = dict(
-            attn_type="minference",
-        )
-    elif method == "flexprefill":
-        kwargs = dict(
-            attn_type="flexprefill",
-        )
-    elif method == "minference_mix":
-        kwargs = dict(
-            attn_type="minference_mix",
-            attn_kwargs={"last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
-        )
     else:
         raise NotImplementedError
 
@@ -187,6 +174,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
 
     # start test
     ret_list = []
+    print("---------------------------")
     for seq_len in seq_len_list:
         dur_list = []
         for i in range(n_times):
@@ -202,9 +190,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
             end_time = time.time()
             torch.cuda.empty_cache()
             dur_list.append((end_time - start_time))
-        print("---------------------------")
         print("seq_len: {:<20} time: {:.2f}s".format(seq_len, np.mean(dur_list)))
-        print("time list: {}".format(", ".join(["{:.2f}s".format(dur) for dur in dur_list])))
         print("---------------------------")
         ret_list.append({
             "model": model_name_to_saving_name[model_name],
