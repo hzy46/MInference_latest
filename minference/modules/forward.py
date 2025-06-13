@@ -130,6 +130,7 @@ def attn_forward(
                 prefill_kwargs,
             )
             attn_output = attn_output.transpose(1, 2).contiguous()
+
         else:  # if not specified, use flash attention
             attn_output = _flash_attention_forward(  # [bsz, q_len, num_heads, head_dim]
                 query_states.transpose(1, 2),
