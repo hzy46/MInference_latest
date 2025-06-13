@@ -89,7 +89,7 @@ TTFT in seconds on A100 80GB:
 | TriangleMix | 0.18 | 0.37 | 0.82 | 1.99 | 5.45 |18.66 |
 
 
-Acceration rate on Llama-3.1-8B-Instruct:
+Acceration rate on Llama-3.1-8B-Instruct with `starting_layer=16`:
 
 ![acceration rate on Llama-3.1-8B-Instruct](images/acc_Llama-3.1-8B-Instruct.png)
 
