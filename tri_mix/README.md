@@ -71,9 +71,9 @@ Results on 128K context length (Minimal drop from 77.6 to 77.3):
 | TriangleMix | 77.3 | 100.0  | 96.0   | 100.0  | 95.0   | 91.0   | 63.0   | 97.75  | 98.0   | 93.2 | 0.0  | 50.67 | 77.0 | 43.0 |
 
 
-## Speed Test
+## Reproduce Efficiency Metrics
 
-We provide a speed test script `speed_test.py`.
+We provide a speed test script `speed_test.py`. This script measures the TTFT (time-to-first-token).
 
 ```bash
 # test
@@ -81,7 +81,11 @@ python speed_test.py --method dense --model_name meta-llama/Llama-3.1-8B-Instruc
 python speed_test.py --method tri_mix --model_name meta-llama/Llama-3.1-8B-Instruct
 ```
 
-Overall speed up:
+TTFT on A100 80GB:
+
+method,4K,8K,16K,32K,64K,128K
+Dense,
+TriangleMix
 
 **pic here**
 
