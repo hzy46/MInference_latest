@@ -65,7 +65,7 @@ bash run_tri_mix.sh meta-llama/Llama-3.1-8B-Instruct minference ./results/tri_mi
 
 Results on 128K context length (Minimal drop from 77.6 to 77.3):
 
-| method      | AVG  | NI.SG1 | NI.SG2 | NI.SG3 | NI.MK1 | NI.MK2 | NI.MK3 | NI.MV  | NI.MQ  | VT   | CWE  | FWE   | QA1  | QA2  |
+| Method      | AVG  | NI.SG1 | NI.SG2 | NI.SG3 | NI.MK1 | NI.MK2 | NI.MK3 | NI.MV  | NI.MQ  | VT   | CWE  | FWE   | QA1  | QA2  |
 |-------------|------|--------|--------|--------|--------|--------|--------|--------|--------|------|------|-------|------|------|
 | Dense       | 77.6 | 100.0  | 96.0   | 100.0  | 95.0   | 91.0   | 62.0   | 97.25  | 98.5   | 90.0 | 2.2  | 57.33 | 77.0 | 43.0 |
 | TriangleMix | 77.3 | 100.0  | 96.0   | 100.0  | 95.0   | 91.0   | 63.0   | 97.75  | 98.0   | 93.2 | 0.0  | 50.67 | 77.0 | 43.0 |
@@ -81,12 +81,16 @@ python speed_test.py --method dense --model_name meta-llama/Llama-3.1-8B-Instruc
 python speed_test.py --method tri_mix --model_name meta-llama/Llama-3.1-8B-Instruct
 ```
 
-TTFT on A100 80GB:
+TTFT in seconds on A100 80GB:
 
-method,4K,8K,16K,32K,64K,128K
-Dense,
-TriangleMix
+| Method      | 4K   | 8K   | 16K  | 32K  | 64K  | 128K |
+|-------------|------|------|------|------|------|------|
+| Dense       | 0.35 | 0.72 | 1.58 | 3.86 |10.56 |32.96 |
+| TriangleMix | 0.18 | 0.37 | 0.82 | 1.99 | 5.45 |18.66 |
 
-**pic here**
+
+Acceration rate on Llama-3.1-8B-Instruct:
+
+![acceration rate on Llama-3.1-8B-Instruct](images/acc_Llama-3.1-8B-Instruct.png)
 
 Note: `MInference` can be faster with latest kernel updates. Here the performance metrics are based on the old implementation.
