@@ -186,6 +186,7 @@ def attn_forward(
         return attn_output, attn_weights
     return attn_output, attn_weights, past_key_value
 
+
 prefill_forwards = {  # None = use flash attention
     "dense": None,
     "a_shape": a_shape_kernel,
