@@ -136,7 +136,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
             starting_layer = 20
         else:
             raise NotImplementedError
-
+    print(starting_layer)
     if method == "dense":
         kwargs = dict(attn_type="dense")
     elif method == "tri_mix":
