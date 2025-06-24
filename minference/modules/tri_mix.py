@@ -44,7 +44,6 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
 
     if layer_idx < starting_layer:
         print("layer", layer_idx, "minference foward")
-        print(q.shape, k.shape, v.shape, prefill_kwargs)
         minference_prefill_kwargs = prefill_kwargs.copy()
         minference_prefill_kwargs.pop('starting_layer', None)
         result =  minference_prefill_forward(q, k, v, minference_prefill_kwargs)
