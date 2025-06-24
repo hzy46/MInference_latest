@@ -31,7 +31,7 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
         print("layer", layer_idx, "minference foward")
         return minference_prefill_forward(q, k, v, prefill_kwargs)
     else:
-        print("layer", layer_idx, "tri foward")
+        print("layer", layer_idx, "tri forward")
         return tri_shape_kernel(q, k, v, prefill_kwargs)
 
 def flexprefill_mix_forward(q, k, v, prefill_kwargs):
