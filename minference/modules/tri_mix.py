@@ -48,12 +48,12 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
         # print("layer", layer_idx, "tri forward")
         result = tri_shape_kernel(q, k, v, prefill_kwargs)
     end_event.record()
-    if layer_idx == 31:
-        for i in range(32):
-            torch.cuda.synchronize()
-            start_event, end_event = g["timer"][i]
-            elapsed_time_ms = start_event.elapsed_time(end_event)
-            print("Layer {} Cost {:.3f} second.".format(i, elapsed_time_ms / 1000.))
+    # if layer_idx == 31:
+    #     for i in range(32):
+    #         torch.cuda.synchronize()
+    #         start_event, end_event = g["timer"][i]
+    #         elapsed_time_ms = start_event.elapsed_time(end_event)
+    #         print("Layer {} Cost {:.3f} second.".format(i, elapsed_time_ms / 1000.))
     return result
 
 def flexprefill_mix_forward(q, k, v, prefill_kwargs):
