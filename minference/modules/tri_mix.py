@@ -28,8 +28,10 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
     layer_idx = prefill_kwargs["layer_idx"]
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
     if layer_idx < starting_layer:
+        print("layer", layer_idx, "minference foward")
         return minference_prefill_forward(q, k, v, prefill_kwargs)
     else:
+        print("layer", layer_idx, "tri foward")
         return tri_shape_kernel(q, k, v, prefill_kwargs)
 
 def flexprefill_mix_forward(q, k, v, prefill_kwargs):
