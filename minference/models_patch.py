@@ -77,6 +77,13 @@ class MInference:
             self.config.attn_kwargs.setdefault("max_budget", None)
             self.config.attn_kwargs.setdefault("block_size", 128)
 
+        if self.config.attn_type == "flexprefill_mix":
+            self.config.attn_kwargs.setdefault("gamma", 0.9)
+            self.config.attn_kwargs.setdefault("tau", 0.1)
+            self.config.attn_kwargs.setdefault("min_budget", None)
+            self.config.attn_kwargs.setdefault("max_budget", None)
+            self.config.attn_kwargs.setdefault("block_size", 128)
+
         if "vllm" not in self.config.attn_type:
             model.config.starting_layer = self.config.starting_layer
             model.config.config_path = self.config.config_path

@@ -146,8 +146,8 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
         )
     elif method == "flexprefill":
         kwargs = dict(
-            attn_type="flexprefill",
-            attn_kwargs={"gamma": 2},
+            attn_type="flexprefill_mix",
+            attn_kwargs={"gamma": 0.95, "last_n": 128, "starting_layer": 100000, "n_local": 512, "n_init": 8},
         )
     elif method == "minference":
         kwargs = dict(
