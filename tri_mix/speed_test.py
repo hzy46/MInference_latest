@@ -132,6 +132,10 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
             attn_type="tri_mix",
             attn_kwargs={"last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
         )
+    elif method == "flexprefill":
+        kwargs = dict(
+            attn_type="flexprefill",
+        )
     else:
         raise NotImplementedError
 
