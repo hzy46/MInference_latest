@@ -632,9 +632,6 @@ def minference_prefill_forward(
     query_states, key_states, value_states,
     prefill_kwargs,
 ):
-    print(query_states.shape, key_states.shape, value_states.shape, prefill_kwargs)
-    start_event, end_event = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-    start_event.record()
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
     layer_idx = prefill_kwargs["layer_idx"]
 
@@ -649,11 +646,6 @@ def minference_prefill_forward(
         else:
             attn_output = flash_attn_func(q.transpose(1, 2), k.transpose(1, 2), v.transpose(1,2), 0.0, softmax_scale=None, causal=q_len != 1).view(bsz, 1, q_len, head_dim)
         output[:, head:head + 1] = attn_output
-    torch.cuda.synchronize()
-    end_event.record()
-    torch.cuda.synchronize()
-    elapsed_time_ms = start_event.elapsed_time(end_event)
-    print("Layer {} Cost {:.3f} second.".format(layer_idx, elapsed_time_ms / 1000.))
     return output
 
 def minference_kv_cache_cpu_forward():
