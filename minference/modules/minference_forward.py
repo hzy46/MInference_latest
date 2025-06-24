@@ -637,6 +637,7 @@ def minference_prefill_forward(
 
     output = torch.empty_like(query_states)
     bsz, _, q_len, head_dim = query_states.shape
+    print(starting_layer)
     for head in range(query_states.size(1)):
         q = query_states[:, head, :, :].unsqueeze(1)
         k = key_states[:, head, :, :].unsqueeze(1)
