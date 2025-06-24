@@ -161,7 +161,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
     elif method == "flexprefill_mix":
         kwargs = dict(
             attn_type="flexprefill_mix",
-            attn_kwargs={"last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
+            attn_kwargs={"gamma": 0.95, "last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
         )
     else:
         raise NotImplementedError
