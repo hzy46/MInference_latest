@@ -136,6 +136,10 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
         kwargs = dict(
             attn_type="flexprefill",
         )
+    elif method == "minference":
+        kwargs = dict(
+            attn_type="minference",
+        )
     else:
         raise NotImplementedError
 
