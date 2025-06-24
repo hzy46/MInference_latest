@@ -221,7 +221,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
                 elapsed_time_ms = start_event.elapsed_time(end_event)
             torch.cuda.empty_cache()
             dur_list.append((elapsed_time_ms) / 1000.)
-            print((elapsed_time_ms) / 1000.)
+            # print((elapsed_time_ms) / 1000.)
         print("seq_len: {:<20} time: {:.2f}s".format(seq_len, np.mean(dur_list)))
         print("---------------------------")
         ret_list.append({
