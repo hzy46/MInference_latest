@@ -184,10 +184,11 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
             assert len(input_ids) >= seq_len
             input_ids = input_ids[:seq_len]
             input_ids = torch.tensor([input_ids], device=model.device)
-            torch.cuda.synchronize(device=model.device)
-            start_event = torch.cuda.Event(enable_timing=True)
-            end_event = torch.cuda.Event(enable_timing=True)
+            
             with torch.no_grad():
+                torch.cuda.synchronize(device=model.device)
+                start_event = torch.cuda.Event(enable_timing=True)
+                end_event = torch.cuda.Event(enable_timing=True)
                 start_event.record()
                 model(input_ids, use_cache=False)
                 end_event.record()
