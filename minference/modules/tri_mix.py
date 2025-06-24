@@ -49,6 +49,7 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
         result = tri_shape_kernel(q, k, v, prefill_kwargs)
     torch.cuda.synchronize()
     end_event.record()
+    torch.cuda.synchronize()
     if layer_idx == 31:
         for i in range(32):
             start_event, end_event = g["timer"][i]
