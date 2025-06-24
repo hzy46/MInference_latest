@@ -43,6 +43,7 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
     start_event.record()
     if layer_idx < starting_layer:
         # print("layer", layer_idx, "minference foward")
+        print(q.shape, k.shape, v.shape, prefill_kwargs)
         result =  minference_prefill_forward(q, k, v, prefill_kwargs)
     else:
         # print("layer", layer_idx, "tri forward")
