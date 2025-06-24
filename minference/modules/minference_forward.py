@@ -632,6 +632,7 @@ def minference_prefill_forward(
     query_states, key_states, value_states,
     prefill_kwargs,
 ):
+    # start_event, end_event = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
     layer_idx = prefill_kwargs["layer_idx"]
 
