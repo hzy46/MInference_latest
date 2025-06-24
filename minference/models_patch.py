@@ -89,10 +89,12 @@ class MInference:
             model.config.config_path = self.config.config_path
 
         if self.config.attn_type == "minference":
+            print(self.config.config_path)
             with open(self.config.config_path, "r") as f:
                 self.config.attn_kwargs.setdefault("best_pattern", json.load(f))
             model = new_patch(model, self.config)
         elif self.config.attn_type == "minference_mix":
+            print(self.config.config_path)
             with open(self.config.config_path, "r") as f:
                 self.config.attn_kwargs.setdefault("best_pattern", json.load(f))
             self.config.attn_kwargs.setdefault("n_local", 512)
