@@ -113,7 +113,7 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
     return samples
 
 
-def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
+def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting_layer=None):
     seq_len_list = [
         # 4000, 
         # 8000, 
@@ -127,14 +127,15 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
         96000,
     ]
     n_times = 1
-    if model_name == "meta-llama/Llama-3.1-8B-Instruct":
-        starting_layer = 16
-    elif model_name == "gradientai/Llama-3-8B-Instruct-262k":
-        starting_layer = 16
-    elif model_name == "Qwen/Qwen2.5-7B-Instruct":
-        starting_layer = 20
-    else:
-        raise NotImplementedError
+    if starting_layer is None:
+        if model_name == "meta-llama/Llama-3.1-8B-Instruct":
+            starting_layer = 16
+        elif model_name == "gradientai/Llama-3-8B-Instruct-262k":
+            starting_layer = 16
+        elif model_name == "Qwen/Qwen2.5-7B-Instruct":
+            starting_layer = 20
+        else:
+            raise NotImplementedError
 
     if method == "dense":
         kwargs = dict(attn_type="dense")

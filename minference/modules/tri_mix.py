@@ -23,16 +23,25 @@ def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
         return tri_shape_kernel(query_states, key_states, value_states, prefill_kwargs)
 
 
+import torch
 
 def minference_mix_forward(q, k, v, prefill_kwargs):
     layer_idx = prefill_kwargs["layer_idx"]
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
+    start_event = torch.cuda.Event(enable_timing=True)
+    end_event = torch.cuda.Event(enable_timing=True)
+    start_event.record()
     if layer_idx < starting_layer:
         print("layer", layer_idx, "minference foward")
-        return minference_prefill_forward(q, k, v, prefill_kwargs)
+        result =  minference_prefill_forward(q, k, v, prefill_kwargs)
     else:
         print("layer", layer_idx, "tri forward")
-        return tri_shape_kernel(q, k, v, prefill_kwargs)
+        result = tri_shape_kernel(q, k, v, prefill_kwargs)
+    end_event.record()
+    torch.cuda.synchronize()
+    elapsed_time_ms = start_event.elapsed_time(end_event)
+    print("Cost {:.1f} second.".format(elapsed_time_ms / 1000.))
+    return result
 
 def flexprefill_mix_forward(q, k, v, prefill_kwargs):
     layer_idx = prefill_kwargs["layer_idx"]
