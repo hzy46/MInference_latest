@@ -123,7 +123,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
         128000
     ]
     if model_name == "meta-llama/Llama-3.1-8B-Instruct":
-        starting_layer = 16
+        starting_layer = 0
     elif model_name == "gradientai/Llama-3-8B-Instruct-262k":
         starting_layer = 16
     elif model_name == "Qwen/Qwen2.5-7B-Instruct":
