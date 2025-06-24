@@ -115,16 +115,16 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
 
 def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting_layer=None):
     seq_len_list = [
-        # 4000, 
-        # 8000, 
-        # 16000, 
-        # 32000,
-        # 64000, 
-        # 128000
+        4000, 
+        8000, 
+        16000, 
+        32000,
+        64000, 
+        128000
         # 64000,
         # 72000,
         # 80000,
-        96000,
+        # 96000,
     ]
     n_times = 1
     if starting_layer is None:
@@ -150,7 +150,8 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
         )
     elif method == "minference":
         kwargs = dict(
-            attn_type="minference",
+            attn_type="minference_mix",
+            attn_kwargs={"last_n": 128, "starting_layer": 10000, "n_local": 512, "n_init": 8},
         )
     elif method == "minference_mix":
         kwargs = dict(
