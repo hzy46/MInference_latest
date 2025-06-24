@@ -35,27 +35,27 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
     # global g
     layer_idx = prefill_kwargs["layer_idx"]
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
-    if layer_idx == 0:
-        g["timer"] = [
-            (torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True))
-            for i in range(32)
-        ]
-    start_event, end_event = g["timer"][layer_idx]
-    start_event.record()
+    # if layer_idx == 0:
+    #     g["timer"] = [
+    #         (torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True))
+    #         for i in range(32)
+    #     ]
+    # start_event, end_event = g["timer"][layer_idx]
+    # start_event.record()
 
     if layer_idx < starting_layer:
-        print("layer", layer_idx, "minference foward")
+        # print("layer", layer_idx, "minference foward")
         minference_prefill_kwargs = copy.deepcopy(prefill_kwargs)
         minference_prefill_kwargs["attn_forward_config"]["starting_layer"] = 0
         result =  minference_prefill_forward(q, k, v, minference_prefill_kwargs)
     else:
         # print("layer", layer_idx, "tri forward")
         result = tri_shape_kernel(q, k, v, prefill_kwargs)
-    torch.cuda.synchronize()
-    end_event.record()
-    torch.cuda.synchronize()
-    elapsed_time_ms = start_event.elapsed_time(end_event)
-    print("Layer {} Cost {:.3f} second.".format(layer_idx, elapsed_time_ms / 1000.))
+    # torch.cuda.synchronize()
+    # end_event.record()
+    # torch.cuda.synchronize()
+    # elapsed_time_ms = start_event.elapsed_time(end_event)
+    # print("Layer {} Cost {:.3f} second.".format(layer_idx, elapsed_time_ms / 1000.))
     return result
 
 def flexprefill_mix_forward(q, k, v, prefill_kwargs):
