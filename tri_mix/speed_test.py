@@ -225,6 +225,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
                 model(input_ids, use_cache=False)
                 torch.cuda.synchronize(device=model.device)
                 end_event.record()
+                torch.cuda.synchronize(device=model.device)
                 elapsed_time_ms = start_event.elapsed_time(end_event)
             torch.cuda.empty_cache()
             dur_list.append((elapsed_time_ms) / 1000.)
