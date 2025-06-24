@@ -7,6 +7,7 @@ except ImportError:
 
 from ..modules.minference_forward import minference_prefill_forward
 from ..modules.flexprefill import flexprefill_forward
+import copy
 
 def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
