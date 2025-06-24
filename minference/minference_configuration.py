@@ -8,6 +8,7 @@ class MInferenceConfig:
     MINFERENCE_ATTENTION_TYPES = [
         "minference",
         "vllm_minference",
+        "minference_mix",
     ]
     OTHER_ATTENTION_TYPES = [
         # original implement
@@ -27,7 +28,6 @@ class MInferenceConfig:
         "vllm_flexprefill",
         "xattention",
         "tri_mix",
-        "minference_mix",
         "flexprefill_mix",
     ]
     KV_TYPES = [
