@@ -34,6 +34,8 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
     # global g
     layer_idx = prefill_kwargs["layer_idx"]
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
+    from IPython import embed
+    embed()
     if layer_idx == 0:
         g["timer"] = [
             (torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True))
