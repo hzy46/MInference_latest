@@ -118,8 +118,9 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense"):
         4000, 
         8000, 
         16000, 
-        32000, 64000, 
-        # 128000
+        32000,
+        64000, 
+        128000
     ]
     if model_name == "meta-llama/Llama-3.1-8B-Instruct":
         starting_layer = 0
