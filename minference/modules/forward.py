@@ -196,7 +196,7 @@ prefill_forwards = {  # None = use flash attention
     "xattention": xattention_forward,
     "tri_mix": tri_mix_forward,
     "minference_mix": minference_mix_forward,
-    "flexprefill_mix": flexprefill_forward,
+    "flexprefill_mix": flexprefill_mix_forward,
 }
 
 decoding_forwards = {
