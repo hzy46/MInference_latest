@@ -2,7 +2,7 @@ set -e
 
 cd ~
 
-pip install transformers
+pip install transformers==4.47.1
 
 
 cd ~/MInference_latest
