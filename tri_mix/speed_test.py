@@ -119,7 +119,11 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
         8000, 
         16000, 
         32000,
-        64000, 
+        48000,
+        64000,
+        80000,
+        96000,
+        112000, 
         128000
         # 64000,
         # 72000,
@@ -147,7 +151,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
     elif method == "flexprefill":
         kwargs = dict(
             attn_type="flexprefill",
-            attn_kwargs={"gamma": 0.9},
+            attn_kwargs={"gamma": 0.95},
         )
     elif method == "minference":
         kwargs = dict(
@@ -161,7 +165,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
     elif method == "flexprefill_mix":
         kwargs = dict(
             attn_type="flexprefill_mix",
-            attn_kwargs={"gamma": 0.9, "last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
+            attn_kwargs={"gamma": 0.95, "last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
         )
     else:
         raise NotImplementedError
