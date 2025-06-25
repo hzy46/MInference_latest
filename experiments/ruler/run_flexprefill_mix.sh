@@ -102,8 +102,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type tri_mix \
-            --attn_kwargs "{\"starting_layer\": ${STARTING_LAYER_TRI_MIX}, \"n_local\": 512, \"n_init\": 8, \"last_n\": 128}" \
+            --attn_type flexprefill_mix \
+            --attn_kwargs "{\"gamma\": 0.95, \"starting_layer\": ${STARTING_LAYER_TRI_MIX}, \"n_local\": 512, \"n_init\": 8, \"last_n\": 128}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \
