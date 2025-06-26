@@ -130,7 +130,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
         # 80000,
         # 96000,
     ]
-    n_times = 3
+    n_times = 1
     if starting_layer is None:
         if model_name == "meta-llama/Llama-3.1-8B-Instruct":
             starting_layer = 16
