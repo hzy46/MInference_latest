@@ -9,27 +9,52 @@ from ..modules.minference_forward import minference_prefill_forward
 from ..modules.flexprefill import flexprefill_forward
 import copy
 
-def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
-    starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
-    layer_idx = prefill_kwargs["layer_idx"]
-
-    bsz, head_num, q_len, head_dim = query_states.shape
-    if layer_idx < starting_layer:
-        # flash attention
-        return flash_attn_func(
-            query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2),
-                0.0, softmax_scale=None, causal=q_len != 1,
-        ).transpose(1, 2)
-    else:
-        return tri_shape_kernel(query_states, key_states, value_states, prefill_kwargs)
-
-
 import torch
 
 
 g = {
     "timer": []
 }
+
+
+def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
+    global g
+    starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
+    layer_idx = prefill_kwargs["layer_idx"]
+    if layer_idx == 0:
+        g["timer"] = [
+            (torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True))
+            for i in range(32)
+        ]
+    start_event, end_event = g["timer"][layer_idx]
+    start_event.record()
+
+    bsz, head_num, q_len, head_dim = query_states.shape
+    if layer_idx < starting_layer:
+        # flash attention
+        result = flash_attn_func(
+            query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2),
+                0.0, softmax_scale=None, causal=q_len != 1,
+        ).transpose(1, 2)
+    else:
+        result = tri_shape_kernel(query_states, key_states, value_states, prefill_kwargs)
+
+    torch.cuda.synchronize()
+    end_event.record()
+    torch.cuda.synchronize()
+    if layer_idx == 31:
+        time_ms_list = []
+        for layer_idx in range(32):
+            start_event, end_event = g["timer"][layer_idx]
+            elapsed_time_ms = start_event.elapsed_time(end_event)
+            time_ms_list.append(elapsed_time_ms)
+        import numpy as np
+        print("{:.1f} ms".format(np.mean(time_ms_list)))
+
+    return result
+
+
+
 
 def minference_mix_forward(q, k, v, prefill_kwargs):
     global g
