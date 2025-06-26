@@ -243,6 +243,9 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
             "seq_len": seq_len,
             "time": np.mean(dur_list),
         })
+
+    if gamma != 0.95:
+        method = "{}_{:.2f}".format(method, gamma)
     pd.DataFrame(ret_list).to_csv(f"speed_test_{model_name_to_saving_name[model_name]}_result_{method}.csv", index=False)
 
 if __name__ == '__main__':
