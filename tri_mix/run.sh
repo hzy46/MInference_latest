@@ -21,9 +21,11 @@
 
 
 
-# python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method dense
-# python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method tri_mix
+python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method dense
+python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method tri_mix
+python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method flexprefill --gamma 0.95
 python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method flexprefill --gamma 0.90
-# python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method minference
-# python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method minference_mix
+python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method minference
+python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method minference_mix
+python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method flexprefill_mix --gamma 0.95
 python speed_test.py --model_name "meta-llama/Llama-3.1-8B-Instruct" --method flexprefill_mix --gamma 0.90
