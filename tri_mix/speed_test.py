@@ -120,11 +120,11 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
         # 16000, 
         # 32000,
         # 48000,
-        # 64000,
+        64000,
         # 80000,
         # 96000,
         # 112000, 
-        128000
+        # 128000
         # 64000,
         # 72000,
         # 80000,
