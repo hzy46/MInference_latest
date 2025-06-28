@@ -40,6 +40,18 @@ BENCHMARK="synthetic"
 MODEL_TEMPLATE_TYPE="base"
 MODEL_FRAMEWORK=$2
 
+if [[ "$MODEL_NAME" == *"Qwen2.5-7B-Instruct-Yarn"* ]]; then
+    SAVE_MODEL_NAME="Qwen/Qwen2.5-7B-Instruct-Yarn"
+    SEQ_LENGTHS=(
+        32768
+        65536
+        131072
+    )
+else
+    SAVE_MODEL_NAME=$MODEL_NAME
+fi
+
+
 # MInference
 STARTING_LAYER=-1
 KV_CACHE_CPU="false"
@@ -75,7 +87,7 @@ STARTING_LAYER_TRI_MIX=$4
 
 for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
 
-    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
+    RESULTS_DIR="${ROOT_DIR}/${SAVE_MODEL_NAME}_${MODEL_FRAMEWORK}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
     DATA_DIR="${RESULTS_DIR}/data"
     PRED_DIR="${RESULTS_DIR}/pred"
     mkdir -p ${DATA_DIR}
