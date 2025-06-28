@@ -62,6 +62,13 @@ MODEL2PATH = {
     "gradientai/Llama-3-70B-Instruct-Gradient-1048k": os.path.join(
         BASE_DIR, "Llama_3_70B_Instruct_262k_kv_out_v32_fit_o_best_pattern.json"
     ),
+    # workaround: for test
+    "/home/aiscuser/Qwen2.5-7B-Instruct-Yarn": os.path.join(
+        BASE_DIR, "Qwen2.5_7B_Instruct_128k_instruct_kv_out_v32_fit_o_best_pattern.json"
+    ),
+    "/home/zhiyuhe/Qwen2.5-7B-Instruct-Yarn": os.path.join(
+        BASE_DIR, "Qwen2.5_7B_Instruct_128k_instruct_kv_out_v32_fit_o_best_pattern.json"
+    ),
 }
 
 
