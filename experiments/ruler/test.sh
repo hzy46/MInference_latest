@@ -8,8 +8,8 @@ python -c "import nltk; nltk.download('punkt')"
 
 SEQ_LENGTHS=(
     # 32768
-    65536
-    # 131072
+    # 65536
+    131072
 )
 
 TASKS=(
