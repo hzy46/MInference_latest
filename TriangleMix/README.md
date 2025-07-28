@@ -73,7 +73,7 @@ output = model.generate(**inputs, do_sample=False, max_new_tokens=50)
 
 First, setup ruler environments. See [setup_ruler.sh](./setup_ruler.sh) for details.
 
-Then, change directory to `<minference>/tri_mix/ruler/`.
+Then, change directory to `<minference>/TriangleMix/ruler/`.
 
 Run dense attention:
 
