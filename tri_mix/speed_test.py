@@ -116,8 +116,11 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
 def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting_layer=None, gamma=None):
     seq_len_list = [
         32000,
+        48000,
         64000,
+        80000,
         96000,
+        112000,
         128000,
     ]
     n_times = 3
@@ -218,7 +221,6 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
                 elapsed_time_ms = start_event.elapsed_time(end_event)
             torch.cuda.empty_cache()
             dur_list.append((elapsed_time_ms) / 1000.)
-            # print((elapsed_time_ms) / 1000.)
         print("seq_len: {:<20} time: {:.2f}s".format(seq_len, np.mean(dur_list)))
         print("---------------------------")
         ret_list.append({
