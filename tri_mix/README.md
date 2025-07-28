@@ -8,15 +8,27 @@ We propose `TriangleMix`, a training-free static attention pattern for efficient
 
 The figure above illustrates how `TriangleMix` operates on `Llama-3.1-8B-Instruct`. In general:
 
-1. `TriangleMix` applies dense attention in the shallow layers and transitions to a `triangle sparse attention` in the deeper layers.  
+1. `TriangleMix` applies dense attention in the shallow layers and transitions to `triangle sparse attention` in the deeper layers. Notably, `triangle sparse attention` reduces the $\mathcal{O}(N^2)$ attention complexity to $\mathcal{O}(N)$, which is a significant complexity decrease, especially for long input sequences.
 2. `TriangleMix` can be integrated with `dynamic attention methods` (e.g., `MInference` or `FlexPrefill`) by utilizing `dynamic attention` in the shallow layers and switching to `triangle sparse attention` in the deeper layers.
 
 Extensive experiments demonstrate that `TriangleMix` reduces attention overhead by **3.7× to 15.3×** in deep layers, and **decreases overall Time-to-First-Token (TTFT) by 12% to 32%** for sequence lengths ranging from 32K to 128K, without sacrificing model accuracy. Moreover, the integration with dynamic sparsity methods to achieve further speedup, e.g. **accelerating MInference by 19% at 128K**, for example, highlighting its potential to enhance LLM inference efficiency.
+
 
 <p align="center">
   <img src="./images/drop.jpg"=width="600">
 </p>
 
+We find such pattern by a novel **gradient-based method**. The casual attention is divided into the following three sections. The gradient measures the importance of each section with relative to outputs. We find the importance of Middle Q-K sections drop siginificantly in deep layers. 
+
+
+
+
+Our hypothesis is that this arises from a **Train–Test Misalignment**:
+
+- **Training**: The loss is applied uniformly to all positions in the input. For example, if the input has 4000 tokens, the model is trained to predict token 2001 given tokens 1–2000.
+- **Inference**: We only care about predicting tokens after the prompt, so predicting tokens inside the prompt (like token 2001) is irrelevant.
+
+We find the Middle Q-K region is important primarily for predicting tokens within the prompt, while for generation tasks focused on tokens after the prompt, the Middle Q-K in deeper layers is largely redundant. Detailed analysis on this topic is provided in the paper.
 
 ## Quick Start
 
