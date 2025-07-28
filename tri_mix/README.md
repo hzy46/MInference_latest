@@ -1,6 +1,12 @@
 # TriangleMix: A Lossless and Efficient Attention Pattern for Long Context Prefilling
 
-We propose `TriangleMix`, a training-free static attention pattern. TriangleMix employs dense attention in shallow layers and switches to a triangle-shaped sparse pattern in deeper layers. Extensive experimental results show that TriangleMix achieves 1.4x to 2x speedup across input lengths ranging from 4K to 128K without sacrificing model accuracy. Furthermore, `TriangleMix` can be seamlessly combined with dynamic sparsity methods, resulting in additional acceleration and highlighting its potential for accelerating LLM inference.
+We propose `TriangleMix`, a training-free static attention pattern for efficient long context prefilling. 
+
+
+
+TriangleMix employs dense attention in shallow layers and switches to a triangle-shaped sparse pattern in deeper layers. 
+
+
 
 ## Quick Start
 
@@ -47,7 +53,9 @@ output = model.generate(**inputs, do_sample=False, max_new_tokens=50)
 
 ## Reproduce Ruler Performance
 
-Change directory to `<minference>/tri_mix/ruler/`.
+First, setup ruler environments. See [setup_ruler.sh](./setup_ruler.sh) for details.
+
+Then, change directory to `<minference>/tri_mix/ruler/`.
 
 Run dense attention:
 
@@ -76,17 +84,20 @@ Results on 128K context length (Minimal drop from 77.6 to 77.3):
 We provide a speed test script `speed_test.py`. This script measures the TTFT (time-to-first-token).
 
 ```bash
-# test
 python speed_test.py --method dense --model_name meta-llama/Llama-3.1-8B-Instruct
 python speed_test.py --method tri_mix --model_name meta-llama/Llama-3.1-8B-Instruct
+python speed_test.py --method tri_mix_minfernece --model_name meta-llama/Llama-3.1-8B-Instruct
 ```
 
 TTFT in seconds on A100 80GB:
 
-| Method      | 4K   | 8K   | 16K  | 32K  | 64K  | 128K |
-|-------------|------|------|------|------|------|------|
-| Dense       | 0.35 | 0.72 | 1.58 | 3.86 |10.56 |32.96 |
-| TriangleMix | 0.18 | 0.37 | 0.82 | 1.99 | 5.45 |18.66 |
+| Method             | 32K                 | 48K                 | 64K                 | 80K                 | 96K                 | 112K                | 128K                |
+|--------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|
+| Dense              | 4.1                 | 7.3                 | 11.2                | 15.9                | 21.3                | 27.5                | 34.5                |
+| MInference         | 5.5 (<span style="color:red">+34%</span>)  | 7.8 (<span style="color:red">+7%</span>)   | 10.1 (<span style="color:green">-10%</span>) | 12.3 (<span style="color:green">-23%</span>) | 13.4 (<span style="color:green">-37%</span>) | 15.9 (<span style="color:green">-42%</span>) | 18.0 (<span style="color:green">-48%</span>) |
+| TriangleMix        | 3.6 (<span style="color:green">-12%</span>) | 5.9 (<span style="color:green">-19%</span>) | 8.6 (<span style="color:green">-23%</span>)  | 11.7 (<span style="color:green">-26%</span>) | 15.2 (<span style="color:green">-29%</span>) | 19.1 (<span style="color:green">-31%</span>) | 23.4 (<span style="color:green">-32%</span>) |
+| Ours + MInference  | 4.2 (<span style="color:red">+2%</span>)    | 6.0 (<span style="color:green">-18%</span>) | 7.7 (<span style="color:green">-31%</span>)  | 9.5 (<span style="color:green">-40%</span>)  | 10.9 (<span style="color:green">-49%</span>) | 12.7 (<span style="color:green">-54%</span>) | 14.5 (<span style="color:green">-58%</span>) |
+
 
 
 Note: `MInference` can be faster with latest kernel updates. Here the performance metrics are based on the old implementation.
