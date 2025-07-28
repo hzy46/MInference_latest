@@ -2,7 +2,9 @@
 
 We propose `TriangleMix`, a training-free static attention pattern for efficient long context prefilling. 
 
-
+<p align="center">
+  <img src="./images/overview.jpg"=width="700">
+</p>
 
 TriangleMix employs dense attention in shallow layers and switches to a triangle-shaped sparse pattern in deeper layers. 
 
