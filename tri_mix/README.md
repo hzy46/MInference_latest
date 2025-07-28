@@ -47,7 +47,7 @@ output = model.generate(**inputs, do_sample=False, max_new_tokens=50)
 
 ## Reproduce Ruler Performance
 
-First, set up the ruler test environment and change directory to `<minference>/experiments/ruler/`.
+Change directory to `<minference>/tri_mix/ruler/`.
 
 Run dense attention:
 
@@ -88,9 +88,5 @@ TTFT in seconds on A100 80GB:
 | Dense       | 0.35 | 0.72 | 1.58 | 3.86 |10.56 |32.96 |
 | TriangleMix | 0.18 | 0.37 | 0.82 | 1.99 | 5.45 |18.66 |
 
-
-Acceration rate on Llama-3.1-8B-Instruct with `starting_layer=16`:
-
-![acceration rate on Llama-3.1-8B-Instruct](images/acc_Llama-3.1-8B-Instruct.png)
 
 Note: `MInference` can be faster with latest kernel updates. Here the performance metrics are based on the old implementation.

@@ -115,9 +115,10 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
 
 def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting_layer=None, gamma=None):
     seq_len_list = [
-        # 32000,
+        32000,
         64000,
-        # 128000,
+        96000,
+        128000,
     ]
     n_times = 3
     if starting_layer is None:
