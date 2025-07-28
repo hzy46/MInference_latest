@@ -11,6 +11,8 @@ The figure above illustrates how `TriangleMix` operates on `Llama-3.1-8B-Instruc
 1. `TriangleMix` applies dense attention in the shallow layers and transitions to a `triangle sparse attention` in the deeper layers.  
 2. `TriangleMix` can be integrated with `dynamic attention methods` (e.g., `MInference` or `FlexPrefill`) by utilizing `dynamic attention` in the shallow layers and switching to `triangle sparse attention` in the deeper layers.
 
+Extensive experiments demonstrate that `TriangleMix` reduces attention overhead by **3.7× to 15.3×** in deep layers, and **decreases overall Time-to-First-Token (TTFT) by 12% to 32%** for sequence lengths ranging from 32K to 128K, without sacrificing model accuracy. Moreover, the integration with dynamic sparsity methods to achieve further speedup, e.g. **accelerating MInference by 19% at 128K**, for example, highlighting its potential to enhance LLM inference efficiency.
+
 <p align="center">
   <img src="./images/drop.jpg"=width="600">
 </p>
