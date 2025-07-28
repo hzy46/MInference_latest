@@ -108,8 +108,6 @@ parser.add_argument("--kv_cache_cpu", action="store_true")
 parser.add_argument("--kv_cache_cpu_device", type=str, default="cpu")
 parser.add_argument("--kv_type", type=str, default="dense")
 parser.add_argument("--trust_remote_code", action="store_true")
-parser.add_argument("--attn_type", type=str, default="minference")
-parser.add_argument("--attn_kwargs", type=json.loads, default={})
 
 args = parser.parse_args()
 args.stop_words = list(filter(None, args.stop_words.split(",")))
@@ -217,8 +215,6 @@ def get_llm(tokens_to_generate):
             kv_type=args.kv_type,
             trust_remote_code=args.trust_remote_code,
             starting_layer=args.starting_layer,
-            attn_type=args.attn_type,
-            attn_kwargs=args.attn_kwargs,
         )
 
     elif args.server_type == "InfLLM":
