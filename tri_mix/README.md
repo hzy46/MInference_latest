@@ -91,13 +91,11 @@ python speed_test.py --method tri_mix_minfernece --model_name meta-llama/Llama-3
 
 TTFT in seconds on A100 80GB:
 
-| Method             | 32K                 | 48K                 | 64K                 | 80K                 | 96K                 | 112K                | 128K                |
-|--------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|---------------------|
-| Dense              | 4.1                 | 7.3                 | 11.2                | 15.9                | 21.3                | 27.5                | 34.5                |
-| MInference         | 5.5 (<span style="color:red">+34%</span>)  | 7.8 (<span style="color:red">+7%</span>)   | 10.1 (<span style="color:green">-10%</span>) | 12.3 (<span style="color:green">-23%</span>) | 13.4 (<span style="color:green">-37%</span>) | 15.9 (<span style="color:green">-42%</span>) | 18.0 (<span style="color:green">-48%</span>) |
-| TriangleMix        | 3.6 (<span style="color:green">-12%</span>) | 5.9 (<span style="color:green">-19%</span>) | 8.6 (<span style="color:green">-23%</span>)  | 11.7 (<span style="color:green">-26%</span>) | 15.2 (<span style="color:green">-29%</span>) | 19.1 (<span style="color:green">-31%</span>) | 23.4 (<span style="color:green">-32%</span>) |
-| Ours + MInference  | 4.2 (<span style="color:red">+2%</span>)    | 6.0 (<span style="color:green">-18%</span>) | 7.7 (<span style="color:green">-31%</span>)  | 9.5 (<span style="color:green">-40%</span>)  | 10.9 (<span style="color:green">-49%</span>) | 12.7 (<span style="color:green">-54%</span>) | 14.5 (<span style="color:green">-58%</span>) |
+| Method             | 32K         | 48K         | 64K         | 80K         | 96K         | 112K        | 128K        |
+|--------------------|-------------|-------------|-------------|-------------|-------------|-------------|-------------|
+| Dense              | 4.1         | 7.3         | 11.2        | 15.9        | 21.3        | 27.5        | 34.5        |
+| MInference         | 5.5 (+34%)  | 7.8 (+7%)   | 10.1 (-10%) | 12.3 (-23%) | 13.4 (-37%) | 15.9 (-42%) | 18.0 (-48%) |
+| TriangleMix        | **3.6 (-12%)**  | **5.9 (-19%)**  | 8.6 (-23%)  | 11.7 (-26%) | 15.2 (-29%) | 19.1 (-31%) | 23.4 (-32%) |
+| Ours + MInference  | 4.2 (+2%)   | 6.0 (-18%)  | **7.7 (-31%)**  | **9.5 (-40%)**  | **10.9 (-49%)** | **12.7 (-54%)** | **14.5 (-58%)** |
 
 
-
-Note: `MInference` can be faster with latest kernel updates. Here the performance metrics are based on the old implementation.
