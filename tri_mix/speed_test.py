@@ -115,20 +115,9 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
 
 def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting_layer=None, gamma=None):
     seq_len_list = [
-        # 4000, 
-        # 8000, 
-        16000, 
         # 32000,
-        # 48000,
-        # 64000,
-        # 80000,
-        # 96000,
-        # 112000, 
-        # 128000
-        # 64000,
-        # 72000,
-        # 80000,
-        # 96000,
+        64000,
+        # 128000,
     ]
     n_times = 3
     if starting_layer is None:
@@ -140,7 +129,6 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
             starting_layer = 20
         else:
             raise NotImplementedError
-    print(starting_layer)
     if gamma is None:
         gamma = 0.95
     if method == "dense":
@@ -159,15 +147,10 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
         kwargs = dict(
             attn_type="minference",
         )
-    elif method == "minference_mix":
+    elif method == "tri_mix_minference":
         kwargs = dict(
-            attn_type="minference_mix",
+            attn_type="tri_mix_minference",
             attn_kwargs={"last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
-        )
-    elif method == "flexprefill_mix":
-        kwargs = dict(
-            attn_type="flexprefill_mix",
-            attn_kwargs={"gamma": gamma, "last_n": 128, "starting_layer": starting_layer, "n_local": 512, "n_init": 8},
         )
     else:
         raise NotImplementedError

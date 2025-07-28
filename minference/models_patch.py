@@ -77,13 +77,6 @@ class MInference:
             self.config.attn_kwargs.setdefault("max_budget", None)
             self.config.attn_kwargs.setdefault("block_size", 128)
 
-        if self.config.attn_type == "flexprefill_mix":
-            self.config.attn_kwargs.setdefault("gamma", 0.9)
-            self.config.attn_kwargs.setdefault("tau", 0.1)
-            self.config.attn_kwargs.setdefault("min_budget", None)
-            self.config.attn_kwargs.setdefault("max_budget", None)
-            self.config.attn_kwargs.setdefault("block_size", 128)
-
         if "vllm" not in self.config.attn_type:
             model.config.starting_layer = self.config.starting_layer
             model.config.config_path = self.config.config_path
@@ -92,7 +85,7 @@ class MInference:
             with open(self.config.config_path, "r") as f:
                 self.config.attn_kwargs.setdefault("best_pattern", json.load(f))
             model = new_patch(model, self.config)
-        elif self.config.attn_type == "minference_mix":
+        elif self.config.attn_type == "tri_mix_minference":
             with open(self.config.config_path, "r") as f:
                 self.config.attn_kwargs.setdefault("best_pattern", json.load(f))
             self.config.attn_kwargs.setdefault("n_local", 512)
@@ -120,13 +113,6 @@ class MInference:
             model = new_patch(model, self.config)
 
         elif self.config.attn_type in ["flexprefill", "dense", "xattention"]:
-            model = new_patch(model, self.config)
-
-        elif self.config.attn_type == "flexprefill_mix":
-            self.config.attn_kwargs.setdefault("n_local", 512)
-            self.config.attn_kwargs.setdefault("n_init", 8)
-            self.config.attn_kwargs.setdefault("n_last", 128)
-            self.config.attn_kwargs.setdefault("starting_layer", 16)
             model = new_patch(model, self.config)
 
         elif self.config.attn_type == "dilated1":
