@@ -6,8 +6,6 @@ We propose `TriangleMix`, a training-free static attention pattern for efficient
   <img src="./images/overview.jpg"=width="700">
 </p>
 
-The figure above illustrates how `TriangleMix` operates on `Llama-3.1-8B-Instruct`. In general:
-
 1. `TriangleMix` applies dense attention in the shallow layers and transitions to `triangle sparse attention` in the deeper layers. Notably, `triangle sparse attention` **reduces the $\mathcal{O}(N^2)$ attention complexity to $\mathcal{O}(N)$**, which is a significant complexity decrease, especially for long input sequences.
 2. `TriangleMix` can be integrated with `dynamic attention methods` (e.g., `MInference` or `FlexPrefill`) by utilizing `dynamic attention` in the shallow layers and switching to `triangle sparse attention` in the deeper layers.
 
