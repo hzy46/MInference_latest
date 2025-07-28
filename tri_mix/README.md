@@ -11,7 +11,9 @@ The figure above illustrates how `TriangleMix` operates on `Llama-3.1-8B-Instruc
 1. `TriangleMix` applies dense attention in the shallow layers and transitions to a `triangle sparse attention` in the deeper layers.  
 2. `TriangleMix` can be integrated with `dynamic attention methods` (e.g., `MInference` or `FlexPrefill`) by utilizing `dynamic attention` in the shallow layers and switching to `triangle sparse attention` in the deeper layers.
 
-
+<p align="center">
+  <img src="./images/drop.jpg"=width="600">
+</p>
 
 
 ## Quick Start
