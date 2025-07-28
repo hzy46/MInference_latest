@@ -16,10 +16,8 @@ Extensive experiments demonstrate that `TriangleMix` reduces attention overhead 
   <img src="./images/drop.jpg"=width="600">
 </p>
 
-We find such pattern by a novel **gradient-based method**. The casual attention is divided into the following three sections. The gradient measures the importance of each section with relative to outputs. We find the importance of Middle Q-K sections drop siginificantly in deep layers. 
 
-
-
+We discover this pattern using a novel **gradient-based method**. The causal attention is divided into three sections. The gradient measures the importance of each section relative to the outputs. We observe that the importance of the middle Q-K section drops significantly in deeper layers.
 
 Our hypothesis is that this arises from a **Train–Test Misalignment**:
 
