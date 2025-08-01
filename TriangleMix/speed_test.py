@@ -116,15 +116,16 @@ def quick_get_random_kv_samples(model_name, tokenizer, gold_index, n_kv_num=10, 
     return samples
 
 
-def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting_layer=None, gamma=None):
+def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting_layer=None, gamma=None, bs=1):
     seq_len_list = [
-        32000,
-        48000,
-        64000,
-        80000,
-        96000,
-        112000,
-        128000,
+        16000,
+        # 32000,
+        # 48000,
+        # 64000,
+        # 80000,
+        # 96000,
+        # 112000,
+        # 128000,
     ]
     n_times = 3
     if starting_layer is None:
@@ -194,7 +195,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
     # warmup
     for seq_len in seq_len_list:
         input_ids = samples[0]["input_ids"][:seq_len]
-        input_ids = torch.tensor([input_ids], device=model.device)
+        input_ids = torch.tensor([input_ids] * bs, device=model.device)
         with torch.no_grad():
             model(input_ids, use_cache=False)
         torch.cuda.empty_cache()
@@ -210,7 +211,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
             # print(len(input_ids))
             assert len(input_ids) >= seq_len
             input_ids = input_ids[:seq_len]
-            input_ids = torch.tensor([input_ids], device=model.device)
+            input_ids = torch.tensor([input_ids] * bs, device=model.device)
             
             with torch.no_grad():
                 torch.cuda.synchronize(device=model.device)
@@ -235,7 +236,7 @@ def main(model_name="meta-llama/Llama-3.1-8B-Instruct", method="dense", starting
 
     if gamma != 0.95:
         method = "{}_{:.2f}".format(method, gamma)
-    pd.DataFrame(ret_list).to_csv(f"speed_test_{model_name_to_saving_name[model_name]}_result_{method}.csv", index=False)
+    pd.DataFrame(ret_list).to_csv(f"speed_test_{model_name_to_saving_name[model_name]}_result_{method}_bs_{bs}.csv", index=False)
 
 if __name__ == '__main__':
     fire.Fire(main)
