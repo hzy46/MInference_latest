@@ -1,9 +1,11 @@
+# Copyright (c) 2025 Microsoft
+# Licensed under The MIT License [see LICENSE for details]
+
 set -e
 
 cd ~
 
-pip install transformers
-
+pip install transformers==4.47.1
 
 cd ~/MInference_latest
 pip install .
