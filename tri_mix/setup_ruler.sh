@@ -23,3 +23,6 @@ pip install git+https://github.com/NVIDIA/NeMo.git
 pip install nltk  hydra-core wonderwords lightning lhotse  jiwer librosa pyannote-core webdataset editdistance pyannote.metrics tenacity xopen
 pip install html2text bs4
 python -c 'import nltk; nltk.download("punkt_tab")'
+
+pip install texterrors
+pip install transformers==4.47.1
