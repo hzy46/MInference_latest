@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Microsoft
+# Licensed under The MIT License [see LICENSE for details]
+
 from ..ops.streaming_kernel import tri_shape_kernel
 
 try:
@@ -5,16 +8,14 @@ try:
 except ImportError:
     from ..ops.flash_attn_triton import _flash_attn_triton_decoding as flash_attn_func
 
-from ..modules.minference_forward import minference_prefill_forward
-from ..modules.flexprefill import flexprefill_forward
 import copy
 
 import torch
 
+from ..modules.flexprefill import flexprefill_forward
+from ..modules.minference_forward import minference_prefill_forward
 
-g = {
-    "timer": []
-}
+g = {"timer": []}
 
 
 def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
@@ -33,11 +34,17 @@ def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
     if layer_idx < starting_layer:
         # flash attention
         result = flash_attn_func(
-            query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2),
-                0.0, softmax_scale=None, causal=q_len != 1,
+            query_states.transpose(1, 2),
+            key_states.transpose(1, 2),
+            value_states.transpose(1, 2),
+            0.0,
+            softmax_scale=None,
+            causal=q_len != 1,
         ).transpose(1, 2)
     else:
-        result = tri_shape_kernel(query_states, key_states, value_states, prefill_kwargs)
+        result = tri_shape_kernel(
+            query_states, key_states, value_states, prefill_kwargs
+        )
 
     # torch.cuda.synchronize()
     # end_event.record()
@@ -52,8 +59,6 @@ def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
     #     print("{:.1f} ms".format(np.mean(time_ms_list)))
 
     return result
-
-
 
 
 def minference_mix_forward(q, k, v, prefill_kwargs):
@@ -72,7 +77,7 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
         # print("layer", layer_idx, "minference foward")
         minference_prefill_kwargs = copy.deepcopy(prefill_kwargs)
         minference_prefill_kwargs["attn_forward_config"]["starting_layer"] = 0
-        result =  minference_prefill_forward(q, k, v, minference_prefill_kwargs)
+        result = minference_prefill_forward(q, k, v, minference_prefill_kwargs)
     else:
         # print("layer", layer_idx, "tri forward")
         result = tri_shape_kernel(q, k, v, prefill_kwargs)
@@ -89,6 +94,7 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
     #     print("{:.1f} ms".format(np.mean(time_ms_list)))
     # print("Layer {} Cost {:.3f} second.".format(layer_idx, elapsed_time_ms / 1000.))
     return result
+
 
 def flexprefill_mix_forward(q, k, v, prefill_kwargs):
     # global g
@@ -116,4 +122,31 @@ def flexprefill_mix_forward(q, k, v, prefill_kwargs):
     #         time_ms_list.append(elapsed_time_ms)
     #     import numpy as np
     #     print("{:.1f} ms".format(np.mean(time_ms_list)))
+    return result
+
+
+def tri_mix_per_layer_forward(query_states, key_states, value_states, prefill_kwargs):
+    tri_layer_idx_list = prefill_kwargs["attn_forward_config"].get(
+        "tri_layer_idx_list", []
+    )
+    if layer_idx == 0:
+        print("tri_layer_idx_list:", tri_layer_idx_list)
+    layer_idx = prefill_kwargs["layer_idx"]
+
+    bsz, head_num, q_len, head_dim = query_states.shape
+    if layer_idx in tri_layer_idx_list:
+        result = tri_shape_kernel(
+            query_states, key_states, value_states, prefill_kwargs
+        )
+    else:
+        # flash attention
+        result = flash_attn_func(
+            query_states.transpose(1, 2),
+            key_states.transpose(1, 2),
+            value_states.transpose(1, 2),
+            0.0,
+            softmax_scale=None,
+            causal=q_len != 1,
+        ).transpose(1, 2)
+
     return result
