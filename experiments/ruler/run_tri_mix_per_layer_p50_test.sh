@@ -24,11 +24,11 @@ TASKS=(
     "niah_multikey_3"
     # "niah_multivalue"
     # "niah_multiquery"
-    "vt"
+    # "vt"
     # "cwe"
     # "fwe"
     # "qa_1"
-    "qa_2"
+    # "qa_2"
 )
 
 # Experiment Setup
