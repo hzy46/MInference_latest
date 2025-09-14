@@ -14,6 +14,7 @@ import torch
 
 from ..modules.flexprefill import flexprefill_forward
 from ..modules.minference_forward import minference_prefill_forward
+from ..modules.xattention import xattention_forward
 
 g = {"timer": []}
 
@@ -122,6 +123,21 @@ def flexprefill_mix_forward(q, k, v, prefill_kwargs):
     #         time_ms_list.append(elapsed_time_ms)
     #     import numpy as np
     #     print("{:.1f} ms".format(np.mean(time_ms_list)))
+    return result
+
+
+def xattention_mix_forward(q, k, v, prefill_kwargs):
+    layer_idx = prefill_kwargs["layer_idx"]
+    starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
+
+    if layer_idx < starting_layer:
+        print("layer", layer_idx, "xattention foward")
+        xattention_prefill_kwargs = copy.deepcopy(prefill_kwargs)
+        xattention_prefill_kwargs["attn_forward_config"]["starting_layer"] = 0
+        result = xattention_forward(q, k, v, xattention_prefill_kwargs)
+    else:
+        print("layer", layer_idx, "tri forward")
+        result = tri_shape_kernel(q, k, v, prefill_kwargs)
     return result
 
 
