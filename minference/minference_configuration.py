@@ -27,7 +27,7 @@ class MInferenceConfig:
         "flexprefill",
         "vllm_flexprefill",
         "xattention",
-        "tri_mix",
+        "xattention_mix" "tri_mix",
         "tri_mix_per_layer",
         "flexprefill_mix",
     ]

@@ -18,6 +18,7 @@ from ..modules.tri_mix import (
     minference_mix_forward,
     tri_mix_forward,
     tri_mix_per_layer_forward,
+    xattention_mix_forward,
 )
 from ..modules.xattention import xattention_forward
 from ..ops.streaming_kernel import a_shape_kernel, tri_shape_kernel
@@ -199,6 +200,7 @@ prefill_forwards = {  # None = use flash attention
     "minference": minference_prefill_forward,
     "flexprefill": flexprefill_forward,
     "xattention": xattention_forward,
+    "xattention_mix": xattention_mix_forward,
     "tri_mix": tri_mix_forward,
     "minference_mix": minference_mix_forward,
     "flexprefill_mix": flexprefill_mix_forward,
