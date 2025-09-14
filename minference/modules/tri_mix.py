@@ -145,9 +145,9 @@ def tri_mix_per_layer_forward(query_states, key_states, value_states, prefill_kw
     tri_layer_idx_list = prefill_kwargs["attn_forward_config"].get(
         "tri_layer_idx_list", []
     )
+    layer_idx = prefill_kwargs["layer_idx"]
     if layer_idx == 0:
         print("tri_layer_idx_list:", tri_layer_idx_list)
-    layer_idx = prefill_kwargs["layer_idx"]
 
     bsz, head_num, q_len, head_dim = query_states.shape
     if layer_idx in tri_layer_idx_list:
