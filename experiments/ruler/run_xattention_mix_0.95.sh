@@ -102,8 +102,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type flexprefill \
-            --attn_kwargs "{\"gamma\": 0.95}" \
+            --attn_type xattention_mix \
+            --attn_kwargs "{\"threshold\": 0.95, \"n_local\": 512, \"n_init\": 8, \"n_last\": 128, \"starting_layer\": 16}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \
@@ -112,6 +112,7 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             ${EXTRA_PARAMS} \
             ${STOP_WORDS}
     done
+
 
     python ${RULER_PATH}/eval/evaluate.py \
         --data_dir ${PRED_DIR} \
