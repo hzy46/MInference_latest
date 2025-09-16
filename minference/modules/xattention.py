@@ -583,6 +583,8 @@ if "TRACK_ATTENTION" in os.environ:
 else:
     track_attention = False
 
+print("track_attention", track_attention)
+
 
 def xattention_forward(
     q: torch.Tensor,
