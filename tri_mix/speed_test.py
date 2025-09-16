@@ -225,7 +225,7 @@ def main(
         kwargs = dict(
             attn_type="xattention",
             attn_kwargs={
-                "threshold": 0.90,
+                "threshold": 0.95,
             },
         )
     else:
