@@ -9,5 +9,5 @@
     "vicuna-v1.5-7b-16k": "lmsys/vicuna-7b-v1.5-16k",
     "llama3.1-8b-instruct": "meta-llama/Llama-3.1-8B-Instruct",
     "llama3-8b-instruct-262k": "gradientai/Llama-3-8B-Instruct-262k",
-    "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-instruct"
+    "qwen2.5-7b-instruct": "Qwen/Qwen2.5-7B-Instruct"
 }
