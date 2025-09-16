@@ -574,17 +574,43 @@ def Xattention_prefill(
     return attn_output
 
 
+import os
+
+g = {"timer": []}
+
+if "TRACK_ATTENTION" in os.environ:
+    track_attention = True
+else:
+    track_attention = False
+
+
 def xattention_forward(
     q: torch.Tensor,
     k: torch.Tensor,
     v: torch.Tensor,
     config,
 ):
+    global g, track_attention
+
     stride = config["attn_forward_config"].get("stride", 8)
     norm = config["attn_forward_config"].get("norm", 1)
     threshold = config["attn_forward_config"].get("threshold", 0.9)
     block_size = config["attn_forward_config"].get("block_size", 128)
     chunk_size = config["attn_forward_config"].get("chunk_size", 2048)
+
+    if track_attention:
+        layer_idx = prefill_kwargs["layer_idx"]
+        if layer_idx == 0:
+            print("Setup 32 timers.")
+            g["timer"] = [
+                (
+                    torch.cuda.Event(enable_timing=True),
+                    torch.cuda.Event(enable_timing=True),
+                )
+                for i in range(32)
+            ]
+        start_event, end_event = g["timer"][layer_idx]
+        start_event.record()
 
     out = Xattention_prefill(
         q,
@@ -596,4 +622,19 @@ def xattention_forward(
         block_size=block_size,
         chunk_size=chunk_size,
     )
+
+    if track_attention:
+        torch.cuda.synchronize()
+        end_event.record()
+        torch.cuda.synchronize()
+        if layer_idx == 31:
+            time_ms_list = []
+            for layer_idx in range(32):
+                start_event, end_event = g["timer"][layer_idx]
+                elapsed_time_ms = start_event.elapsed_time(end_event)
+                time_ms_list.append(elapsed_time_ms)
+            import numpy as np
+
+            print("Average Attn {:.1f} ms".format(np.mean(time_ms_list)))
+
     return out
