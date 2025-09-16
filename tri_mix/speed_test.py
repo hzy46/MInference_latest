@@ -149,17 +149,18 @@ def main(
     method="dense",
     starting_layer=None,
     gamma=None,
+    with_tp_plan=False,
 ):
     seq_len_list = [
         # 4000,
         # 8000,
         # 16000,
-        32000,
-        48000,
-        64000,
-        80000,
-        96000,
-        112000,
+        # 32000,
+        # 48000,
+        # 64000,
+        # 80000,
+        # 96000,
+        # 112000,
         128000,
         # 64000,
         # 72000,
@@ -260,13 +261,24 @@ def main(
         **kwargs,
     )
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        torch_dtype=torch.bfloat16,
-        device_map="auto",
-        trust_remote_code=True,
-        attn_implementation="flash_attention_2",
-    )
+    if with_tp_plan:
+        print("use tp plan")
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            trust_remote_code=True,
+            attn_implementation="flash_attention_2",
+            tp_plan="auto",
+        )
+    else:
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            trust_remote_code=True,
+            attn_implementation="flash_attention_2",
+        )
 
     model = minference_patch(model)
     samples = quick_get_random_kv_samples(
