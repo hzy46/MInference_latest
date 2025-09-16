@@ -166,7 +166,7 @@ def main(
         # 80000,
         # 96000,
     ]
-    n_times = 10
+    n_times = 3
     if starting_layer is None:
         if model_name == "meta-llama/Llama-3.1-8B-Instruct":
             starting_layer = 16
@@ -225,7 +225,7 @@ def main(
         kwargs = dict(
             attn_type="xattention",
             attn_kwargs={
-                "threshold": 0.95,
+                "threshold": 0.90,
             },
         )
     else:
