@@ -100,6 +100,14 @@ class MInference:
             self.config.attn_kwargs.setdefault("n_last", 128)
             self.config.attn_kwargs.setdefault("starting_layer", 16)
             model = new_patch(model, self.config)
+        elif self.config.attn_type == "minference_mix_per_layer":
+            with open(self.config.config_path, "r") as f:
+                self.config.attn_kwargs.setdefault("best_pattern", json.load(f))
+            self.config.attn_kwargs.setdefault("n_local", 512)
+            self.config.attn_kwargs.setdefault("n_init", 8)
+            self.config.attn_kwargs.setdefault("n_last", 128)
+            self.config.attn_kwargs.setdefault("tri_layer_idx_list", [])
+            model = new_patch(model, self.config)
 
         elif self.config.attn_type == "a_shape":
             self.config.attn_kwargs.setdefault("n_local", 3968)
@@ -135,12 +143,24 @@ class MInference:
             self.config.attn_kwargs.setdefault("n_last", 128)
             self.config.attn_kwargs.setdefault("starting_layer", 16)
             model = new_patch(model, self.config)
+        elif self.config.attn_type == "xattention_mix_per_layer":
+            self.config.attn_kwargs.setdefault("n_local", 512)
+            self.config.attn_kwargs.setdefault("n_init", 8)
+            self.config.attn_kwargs.setdefault("n_last", 128)
+            self.config.attn_kwargs.setdefault("tri_layer_idx_list", [])
+            model = new_patch(model, self.config)
 
         elif self.config.attn_type == "flexprefill_mix":
             self.config.attn_kwargs.setdefault("n_local", 512)
             self.config.attn_kwargs.setdefault("n_init", 8)
             self.config.attn_kwargs.setdefault("n_last", 128)
             self.config.attn_kwargs.setdefault("starting_layer", 16)
+            model = new_patch(model, self.config)
+        elif self.config.attn_type == "flexprefill_mix_per_layer":
+            self.config.attn_kwargs.setdefault("n_local", 512)
+            self.config.attn_kwargs.setdefault("n_init", 8)
+            self.config.attn_kwargs.setdefault("n_last", 128)
+            self.config.attn_kwargs.setdefault("tri_layer_idx_list", [])
             model = new_patch(model, self.config)
 
         elif self.config.attn_type == "dilated1":

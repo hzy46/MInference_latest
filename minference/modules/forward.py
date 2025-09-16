@@ -15,10 +15,13 @@ from ..modules.quest import quest_decode_kernel
 from ..modules.retr_attn import retr_attn
 from ..modules.tri_mix import (
     flexprefill_mix_forward,
+    flexprefill_mix_per_layer_forward,
     minference_mix_forward,
+    minference_mix_per_layer_forward,
     tri_mix_forward,
     tri_mix_per_layer_forward,
     xattention_mix_forward,
+    xattention_mix_per_layer_forward,
 )
 from ..modules.xattention import xattention_forward
 from ..ops.streaming_kernel import a_shape_kernel, tri_shape_kernel
@@ -205,6 +208,9 @@ prefill_forwards = {  # None = use flash attention
     "minference_mix": minference_mix_forward,
     "flexprefill_mix": flexprefill_mix_forward,
     "tri_mix_per_layer": tri_mix_per_layer_forward,
+    "minference_mix_per_layer": minference_mix_per_layer_forward,
+    "flexprefill_mix_per_layer": flexprefill_mix_per_layer_forward,
+    "xattention_mix_per_layer": xattention_mix_per_layer_forward,
 }
 
 decoding_forwards = {

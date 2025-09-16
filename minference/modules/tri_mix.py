@@ -97,6 +97,23 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
     return result
 
 
+def minference_mix_per_layer_forward(q, k, v, prefill_kwargs):
+    tri_layer_idx_list = prefill_kwargs["attn_forward_config"].get(
+        "tri_layer_idx_list", []
+    )
+    layer_idx = prefill_kwargs["layer_idx"]
+    if layer_idx == 0:
+        print("tri_layer_idx_list:", tri_layer_idx_list)
+
+    if not (layer_idx in tri_layer_idx_list):
+        minference_prefill_kwargs = copy.deepcopy(prefill_kwargs)
+        minference_prefill_kwargs["attn_forward_config"]["starting_layer"] = 0
+        result = minference_prefill_forward(q, k, v, minference_prefill_kwargs)
+    else:
+        result = tri_shape_kernel(q, k, v, prefill_kwargs)
+    return result
+
+
 def flexprefill_mix_forward(q, k, v, prefill_kwargs):
     # global g
     layer_idx = prefill_kwargs["layer_idx"]
@@ -126,6 +143,21 @@ def flexprefill_mix_forward(q, k, v, prefill_kwargs):
     return result
 
 
+def flexprefill_mix_per_layer_forward(q, k, v, prefill_kwargs):
+    tri_layer_idx_list = prefill_kwargs["attn_forward_config"].get(
+        "tri_layer_idx_list", []
+    )
+    layer_idx = prefill_kwargs["layer_idx"]
+    if layer_idx == 0:
+        print("tri_layer_idx_list:", tri_layer_idx_list)
+
+    if not (layer_idx in tri_layer_idx_list):
+        result = flexprefill_forward(q, k, v, prefill_kwargs)
+    else:
+        result = tri_shape_kernel(q, k, v, prefill_kwargs)
+    return result
+
+
 def xattention_mix_forward(q, k, v, prefill_kwargs):
     layer_idx = prefill_kwargs["layer_idx"]
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
@@ -137,6 +169,23 @@ def xattention_mix_forward(q, k, v, prefill_kwargs):
         result = xattention_forward(q, k, v, xattention_prefill_kwargs)
     else:
         # print("layer", layer_idx, "tri forward")
+        result = tri_shape_kernel(q, k, v, prefill_kwargs)
+    return result
+
+
+def xattention_mix_per_layer_forward(q, k, v, prefill_kwargs):
+    tri_layer_idx_list = prefill_kwargs["attn_forward_config"].get(
+        "tri_layer_idx_list", []
+    )
+    layer_idx = prefill_kwargs["layer_idx"]
+    if layer_idx == 0:
+        print("tri_layer_idx_list:", tri_layer_idx_list)
+
+    if not (layer_idx in tri_layer_idx_list):
+        xattention_prefill_kwargs = copy.deepcopy(prefill_kwargs)
+        xattention_prefill_kwargs["attn_forward_config"]["starting_layer"] = 0
+        result = xattention_forward(q, k, v, xattention_prefill_kwargs)
+    else:
         result = tri_shape_kernel(q, k, v, prefill_kwargs)
     return result
 

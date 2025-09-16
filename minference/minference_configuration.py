@@ -9,6 +9,7 @@ class MInferenceConfig:
         "minference",
         "vllm_minference",
         "minference_mix",
+        "minference_mix_per_layer",
     ]
     OTHER_ATTENTION_TYPES = [
         # original implement
@@ -28,9 +29,11 @@ class MInferenceConfig:
         "vllm_flexprefill",
         "xattention",
         "xattention_mix",
+        "xattention_mix_per_layer",
         "tri_mix",
         "tri_mix_per_layer",
         "flexprefill_mix",
+        "flexprefill_mix_per_layer",
     ]
     KV_TYPES = [
         "dense",
