@@ -601,7 +601,7 @@ def xattention_forward(
     chunk_size = config["attn_forward_config"].get("chunk_size", 2048)
 
     if track_attention:
-        layer_idx = prefill_kwargs["layer_idx"]
+        layer_idx = config["layer_idx"]
         if layer_idx == 0:
             print("Setup 32 timers.")
             g["timer"] = [
