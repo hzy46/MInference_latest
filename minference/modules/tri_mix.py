@@ -131,12 +131,12 @@ def xattention_mix_forward(q, k, v, prefill_kwargs):
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
 
     if layer_idx < starting_layer:
-        print("layer", layer_idx, "xattention foward")
+        # print("layer", layer_idx, "xattention foward")
         xattention_prefill_kwargs = copy.deepcopy(prefill_kwargs)
         xattention_prefill_kwargs["attn_forward_config"]["starting_layer"] = 0
         result = xattention_forward(q, k, v, xattention_prefill_kwargs)
     else:
-        print("layer", layer_idx, "tri forward")
+        # print("layer", layer_idx, "tri forward")
         result = tri_shape_kernel(q, k, v, prefill_kwargs)
     return result
 
