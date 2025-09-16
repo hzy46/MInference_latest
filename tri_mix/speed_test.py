@@ -228,6 +228,17 @@ def main(
                 "threshold": 0.95,
             },
         )
+    elif method == "xattention_mix":
+        kwargs = dict(
+            attn_type="xattention_mix",
+            attn_kwargs={
+                "threshold": 0.95,
+                "last_n": 128,
+                "starting_layer": starting_layer,
+                "n_local": 512,
+                "n_init": 8,
+            },
+        )
     else:
         raise NotImplementedError
 
