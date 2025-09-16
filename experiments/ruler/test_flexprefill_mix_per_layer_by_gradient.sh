@@ -8,12 +8,42 @@ if [ -z "$ZHIYUHE" ]; then
     exit 1
 fi
 
-mkdir -p $ZHIYUHE/250916_ruler/flexprefill_mix_per_layer/
+REMOTE_SAVE_DIR=$ZHIYUHE/250916_ruler/flexprefill_mix_per_layer/
+mkdir -p $REMOTE_SAVE_DIR
+MODEL_FRAMEWORK=minference
+ROOT_DIR=results_flexprefill_mix_per_layer
+
 
 MODEL_NAME=$1
-MODEL_FRAMEWORK=$2
-ROOT_DIR=$3 # the path that stores generated task samples and model predictions.
-TRI_LAYER_NUM=$4
+TRI_LAYER_NUM=$2
+LENGTH_TYPE=$3
+
+if [ "$3" = "long" ]; then
+    SEQ_LENGTHS=(
+        32768
+        65536
+        131072
+    )
+elif [ "$3" = "short" ]; then
+    SEQ_LENGTHS=(
+        4096
+        8192
+        16384
+    )
+elif [ "$3" = "all" ]; then
+    SEQ_LENGTHS=(
+        4096
+        8192
+        16384
+        32768
+        65536
+        131072
+    )
+else
+    echo "Error: third argument must be 'long', 'short', or 'all'"
+    exit 1
+fi
+
 
 # 根据 model_name 选择对应的列表
 if [[ "$MODEL_NAME" == *"Llama-3.1-8B-Instruct"* ]]; then
@@ -49,14 +79,6 @@ export TOKENIZERS_PARALLELISM=false
 RULER_PATH=$(dirname $0)
 python -c "import nltk; nltk.download('punkt')"
 
-SEQ_LENGTHS=(
-    # 4096
-    # 8192
-    # 16384
-    32768
-    65536
-    131072
-)
 NUM_SAMPLES=100
 
 TASKS=(
@@ -159,4 +181,4 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
 done
 
 
-cp -r ${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_by_gradient_tri_num_${TRI_LAYER_NUM} $ZHIYUHE/250916_ruler/flexprefill_mix_per_layer/
+cp -r ${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_by_gradient_tri_num_${TRI_LAYER_NUM} $REMOTE_SAVE_DIR
