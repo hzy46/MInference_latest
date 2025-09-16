@@ -153,20 +153,20 @@ def main(
     seq_len_list = [
         # 4000,
         # 8000,
-        16000,
-        # 32000,
-        # 48000,
-        # 64000,
-        # 80000,
-        # 96000,
-        # 112000,
-        # 128000
+        # 16000,
+        32000,
+        48000,
+        64000,
+        80000,
+        96000,
+        112000,
+        128000,
         # 64000,
         # 72000,
         # 80000,
         # 96000,
     ]
-    n_times = 3
+    n_times = 10
     if starting_layer is None:
         if model_name == "meta-llama/Llama-3.1-8B-Instruct":
             starting_layer = 16
@@ -224,6 +224,9 @@ def main(
     elif method == "xattention":
         kwargs = dict(
             attn_type="xattention",
+            attn_kwargs={
+                "threshold": 0.95,
+            },
         )
     else:
         raise NotImplementedError
