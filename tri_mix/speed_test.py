@@ -186,7 +186,8 @@ def main(
         kwargs = dict(
             attn_type="tri_mix",
             attn_kwargs={
-                "last_n": 128,
+                # test
+                "last_n": 512,
                 "starting_layer": starting_layer,
                 "n_local": 512,
                 "n_init": 8,
@@ -243,6 +244,7 @@ def main(
     else:
         raise NotImplementedError
 
+    print(kwargs)
     model_name_to_saving_name = {
         "meta-llama/Llama-3.1-8B-Instruct": "Llama-3.1-8B-Instruct",
         "gradientai/Llama-3-8B-Instruct-262k": "Llama-3-8B-Instruct-262k",
