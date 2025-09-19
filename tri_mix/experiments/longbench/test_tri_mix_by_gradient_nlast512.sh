@@ -7,6 +7,9 @@ if [ -z "$ZHIYUHE" ]; then
     exit 1
 fi
 
+mkdir -p $ZHIYUHE/250919_longbench_nlast512
+
+
 # llama3.1-8b-instruct
 # llama3-8b-instruct-262k
 # qwen2.5-7b-instruct
@@ -47,5 +50,4 @@ python pred.py --model $1 --e \
     --attn_kwargs  "{\"tri_layer_idx_list\": ${tri_layer_idx_list_str}, \"n_local\": 512, \"n_init\": 8, \"last_n\": 512}" \
     --method_name tri_mix_by_gradient_tri_num_${TRI_LAYER_NUM}
 
-mkdir -p $ZHIYUHE/250919_longbench_nlast_512
 cp -r pred_e/* $ZHIYUHE/250919_longbench_nlast512
