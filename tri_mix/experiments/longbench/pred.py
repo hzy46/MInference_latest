@@ -93,6 +93,80 @@ def post_process(response, model_name):
     return response
 
 
+import torch
+
+
+def duoattention_decode(
+    model,
+    input_ids,
+    tokenizer,
+    full_attention_heads,
+    max_new_tokens=128,
+    prefilling_chunk_size=32000,
+):
+    """
+    Greedy decoding with DuoAttention KV cache, using chunked prefill.
+
+    Args:
+        model: HuggingFace-like causal LM with DuoAttention support
+        input_ids: torch.LongTensor of shape (1, seq_len), already on CUDA
+        tokenizer: tokenizer for decoding
+        max_new_tokens: int, max number of new tokens to generate
+        prefilling_chunk_size: int, default 32000, chunk size for prefill
+
+    Returns:
+        output_ids: list[int], includes original input_ids + generated tokens
+    """
+    device = input_ids.device
+    seq_len = input_ids.size(1)
+    eos_token_id = tokenizer.eos_token_id
+
+    # 初始化 kv_cache
+    kv_cache = DuoAttentionStaticKVCache(
+        model,
+        full_attention_heads=full_attention_heads,
+        batch_size=1,
+        max_size=seq_len + max_new_tokens + 10,
+        sink_size=8,
+        recent_size=512,
+    )
+
+    # prefill with chunking
+    with torch.no_grad():
+        last_outputs = None
+        for i in range(0, seq_len, prefilling_chunk_size):
+            input_chunk = input_ids[:, i : i + prefilling_chunk_size]
+            last_outputs = model(
+                input_ids=input_chunk,
+                past_key_values=kv_cache,
+                use_cache=True,
+            )
+    generated = input_ids.tolist()[0]  # list[int]
+    # generated ids
+
+    next_token = last_outputs.logits[:, -1, :].argmax(dim=-1).unsqueeze(1)
+    if next_token.item() == eos_token_id:
+        return generated
+    generated.append(next_token.item())
+
+    # decode (greedy)
+    for _ in range(max_new_tokens - 1):  # 已经生成了一个，所以少一步
+        with torch.no_grad():
+            outputs = model(
+                input_ids=next_token,
+                past_key_values=kv_cache,
+            )
+            kv_cache = last_outputs.past_key_values
+
+        next_token = outputs.logits[:, -1, :].argmax(dim=-1).unsqueeze(1)
+        token_id = next_token.item()
+        if token_id == eos_token_id:
+            break
+        generated.append(token_id)
+
+    return generated
+
+
 def get_pred(
     model,
     tokenizer,
