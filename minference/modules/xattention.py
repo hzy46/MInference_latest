@@ -580,8 +580,13 @@ g = {"timer": []}
 
 if "TRACK_ATTENTION" in os.environ:
     track_attention = True
+    if TRACK_ATTENTION_LAYER_NUM in os.environ:
+        track_attention_layer_num = int(os.environ["TRACK_ATTENTION_LAYER_NUM"])
+    else:
+        track_attention_layer_num = 32
 else:
     track_attention = False
+    track_attention_layer_num = None
 
 print("track_attention", track_attention)
 
@@ -592,7 +597,7 @@ def xattention_forward(
     v: torch.Tensor,
     config,
 ):
-    global g, track_attention
+    global g, track_attention, track_attention_layer_num
 
     stride = config["attn_forward_config"].get("stride", 8)
     norm = config["attn_forward_config"].get("norm", 1)
@@ -603,13 +608,12 @@ def xattention_forward(
     if track_attention:
         layer_idx = config["layer_idx"]
         if layer_idx == 0:
-            print("Setup 32 timers.")
             g["timer"] = [
                 (
                     torch.cuda.Event(enable_timing=True),
                     torch.cuda.Event(enable_timing=True),
                 )
-                for i in range(32)
+                for i in range(track_attention_layer_num)
             ]
         start_event, end_event = g["timer"][layer_idx]
         start_event.record()
@@ -629,9 +633,9 @@ def xattention_forward(
         torch.cuda.synchronize()
         end_event.record()
         torch.cuda.synchronize()
-        if layer_idx == 31:
+        if layer_idx == track_attention_layer_num - 1:
             time_ms_list = []
-            for layer_idx in range(32):
+            for layer_idx in range(track_attention_layer_num):
                 start_event, end_event = g["timer"][layer_idx]
                 elapsed_time_ms = start_event.elapsed_time(end_event)
                 time_ms_list.append(elapsed_time_ms)
