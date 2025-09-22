@@ -580,7 +580,7 @@ g = {"timer": []}
 
 if "TRACK_ATTENTION" in os.environ:
     track_attention = True
-    if TRACK_ATTENTION_LAYER_NUM in os.environ:
+    if "TRACK_ATTENTION_LAYER_NUM" in os.environ:
         track_attention_layer_num = int(os.environ["TRACK_ATTENTION_LAYER_NUM"])
     else:
         track_attention_layer_num = 32
