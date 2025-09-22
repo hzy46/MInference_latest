@@ -583,6 +583,7 @@ if "TRACK_ATTENTION" in os.environ:
     if "TRACK_ATTENTION_LAYER_NUM" in os.environ:
         track_attention_layer_num = int(os.environ["TRACK_ATTENTION_LAYER_NUM"])
     else:
+        print("set track_attention_layer_num to 32")
         track_attention_layer_num = 32
 else:
     track_attention = False
