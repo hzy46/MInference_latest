@@ -41,7 +41,7 @@ def tri_mix_forward(query_states, key_states, value_states, prefill_kwargs):
     global g, track_attention, track_attention_layer_num
 
     if track_attention:
-        layer_idx = config["layer_idx"]
+        layer_idx = prefill_kwargs["layer_idx"]
         if layer_idx == 0:
             g["timer"] = [
                 (
@@ -91,7 +91,7 @@ def minference_mix_forward(q, k, v, prefill_kwargs):
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
 
     if track_attention:
-        layer_idx = config["layer_idx"]
+        layer_idx = prefill_kwargs["layer_idx"]
         if layer_idx == 0:
             g["timer"] = [
                 (
@@ -150,7 +150,7 @@ def flexprefill_mix_forward(q, k, v, prefill_kwargs):
     starting_layer = prefill_kwargs["attn_forward_config"].get("starting_layer", 0)
 
     if track_attention:
-        layer_idx = config["layer_idx"]
+        layer_idx = prefill_kwargs["layer_idx"]
         if layer_idx == 0:
             g["timer"] = [
                 (
