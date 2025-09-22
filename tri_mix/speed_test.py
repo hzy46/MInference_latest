@@ -187,7 +187,7 @@ def main(
             attn_type="tri_mix",
             attn_kwargs={
                 # test
-                "last_n": 512,
+                "last_n": 128,
                 "starting_layer": starting_layer,
                 "n_local": 512,
                 "n_init": 8,
