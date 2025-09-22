@@ -598,13 +598,13 @@ def xattention_forward(
     v: torch.Tensor,
     config,
 ):
-    global g, track_attention, track_attention_layer_num
-
     stride = config["attn_forward_config"].get("stride", 8)
     norm = config["attn_forward_config"].get("norm", 1)
     threshold = config["attn_forward_config"].get("threshold", 0.9)
     block_size = config["attn_forward_config"].get("block_size", 128)
     chunk_size = config["attn_forward_config"].get("chunk_size", 2048)
+
+    global g, track_attention, track_attention_layer_num
 
     if track_attention:
         layer_idx = config["layer_idx"]
