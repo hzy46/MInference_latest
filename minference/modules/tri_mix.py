@@ -9,6 +9,7 @@ except ImportError:
     from ..ops.flash_attn_triton import _flash_attn_triton_decoding as flash_attn_func
 
 import copy
+import os
 
 import numpy as np
 import torch
