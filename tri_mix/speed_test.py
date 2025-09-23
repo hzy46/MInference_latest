@@ -322,7 +322,11 @@ def main(
                 torch.cuda.empty_cache()
                 dur_list.append((elapsed_time_ms) / 1000.0)
                 # print((elapsed_time_ms) / 1000.)
-            print("seq_len: {:<20} time: {:.2f}s".format(seq_len, np.mean(dur_list)))
+            print(
+                "starting_layer: {:<8} seq_len: {:<20} time: {:.2f}s".format(
+                    starting_layer, seq_len, np.mean(dur_list)
+                )
+            )
             print("---------------------------")
             ret_list.append(
                 {
