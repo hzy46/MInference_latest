@@ -161,7 +161,7 @@ def main(
         # 80000,
         # 96000,
         # 112000,
-        # 128000,
+        128000,
         # 64000,
         # 72000,
         # 80000,
@@ -230,6 +230,7 @@ def main(
                 attn_type="xattention",
                 attn_kwargs={
                     "threshold": 0.95,
+                    "stride": 16,
                 },
             )
         elif method == "xattention_mix":
