@@ -167,7 +167,7 @@ def main(
         # 80000,
         # 96000,
     ]
-    n_times = 1
+    n_times = 2
     if starting_layers is None:
         if model_name == "meta-llama/Llama-3.1-8B-Instruct":
             starting_layers = [16]
