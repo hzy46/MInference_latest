@@ -147,7 +147,7 @@ def quick_get_random_kv_samples(
 def main(
     model_name="meta-llama/Llama-3.1-8B-Instruct",
     method="dense",
-    starting_layer=None,
+    starting_layers=None,
     gamma=None,
     with_tp_plan=False,
 ):
@@ -155,182 +155,184 @@ def main(
         # 4000,
         # 8000,
         # 16000,
-        32000,
+        # 32000,
         # 48000,
         64000,
         # 80000,
         # 96000,
         # 112000,
-        128000,
+        # 128000,
         # 64000,
         # 72000,
         # 80000,
         # 96000,
     ]
     n_times = 1
-    if starting_layer is None:
+    if starting_layers is None:
         if model_name == "meta-llama/Llama-3.1-8B-Instruct":
-            starting_layer = 16
+            starting_layers = [16]
         elif model_name == "gradientai/Llama-3-8B-Instruct-262k":
-            starting_layer = 16
+            starting_layers = [16]
         elif model_name == "Qwen/Qwen2.5-7B-Instruct":
-            starting_layer = 20
+            starting_layers = [20]
         else:
             raise NotImplementedError
-    print(starting_layer)
-    if gamma is None:
-        gamma = 0.95
-    if method == "dense":
-        kwargs = dict(attn_type="dense")
-    elif method == "tri_mix":
-        kwargs = dict(
-            attn_type="tri_mix",
-            attn_kwargs={
-                # test
-                "last_n": 128,
-                "starting_layer": starting_layer,
-                "n_local": 512,
-                "n_init": 8,
-            },
-        )
-    elif method == "flexprefill":
-        kwargs = dict(
-            attn_type="flexprefill",
-            attn_kwargs={"gamma": gamma},
-        )
-    elif method == "minference":
-        kwargs = dict(
-            attn_type="minference",
-        )
-    elif method == "minference_mix":
-        kwargs = dict(
-            attn_type="minference_mix",
-            attn_kwargs={
-                "last_n": 128,
-                "starting_layer": starting_layer,
-                "n_local": 512,
-                "n_init": 8,
-            },
-        )
-    elif method == "flexprefill_mix":
-        kwargs = dict(
-            attn_type="flexprefill_mix",
-            attn_kwargs={
-                "gamma": gamma,
-                "last_n": 128,
-                "starting_layer": starting_layer,
-                "n_local": 512,
-                "n_init": 8,
-            },
-        )
-    elif method == "xattention":
-        kwargs = dict(
-            attn_type="xattention",
-            attn_kwargs={
-                "threshold": 0.95,
-            },
-        )
-    elif method == "xattention_mix":
-        kwargs = dict(
-            attn_type="xattention_mix",
-            attn_kwargs={
-                "threshold": 0.95,
-                "last_n": 128,
-                "starting_layer": starting_layer,
-                "n_local": 512,
-                "n_init": 8,
-            },
-        )
-    else:
-        raise NotImplementedError
-
-    print(kwargs)
-    model_name_to_saving_name = {
-        "meta-llama/Llama-3.1-8B-Instruct": "Llama-3.1-8B-Instruct",
-        "gradientai/Llama-3-8B-Instruct-262k": "Llama-3-8B-Instruct-262k",
-        "Qwen/Qwen2.5-7B-Instruct": "Qwen2.5-7B-Instruct",
-    }
-    tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
-
-    minference_patch = MInference(
-        model_name=model_name,
-        config_path=None,
-        starting_layer=-1,
-        kv_type="dense",
-        is_search=False,
-        kv_cache_cpu=False,
-        kv_cache_cpu_device="cpu",
-        **kwargs,
-    )
-
-    if with_tp_plan:
-        print("use tp plan")
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.bfloat16,
-            device_map="auto",
-            trust_remote_code=True,
-            attn_implementation="flash_attention_2",
-            tp_plan="auto",
-        )
-    else:
-        model = AutoModelForCausalLM.from_pretrained(
-            model_name,
-            torch_dtype=torch.bfloat16,
-            device_map="auto",
-            trust_remote_code=True,
-            attn_implementation="flash_attention_2",
-        )
-
-    model = minference_patch(model)
-    samples = quick_get_random_kv_samples(
-        model_name, tokenizer, 3000, n_kv_num=6000, n_sample=n_times
-    )
-
-    # warmup
-    for seq_len in seq_len_list:
-        input_ids = samples[0]["input_ids"][:seq_len]
-        input_ids = torch.tensor([input_ids], device=model.device)
-        with torch.no_grad():
-            model(input_ids, use_cache=False)
-        torch.cuda.empty_cache()
-
-    # start test
+    print(starting_layers)
     ret_list = []
-    print("---------------------------")
-    for seq_len in seq_len_list:
-        dur_list = []
-        for i in range(n_times):
-            sample = samples[i]
-            input_ids = sample["input_ids"]
-            # print(len(input_ids))
-            assert len(input_ids) >= seq_len
-            input_ids = input_ids[:seq_len]
-            input_ids = torch.tensor([input_ids], device=model.device)
+    for starting_layer in starting_layers:
+        if gamma is None:
+            gamma = 0.95
+        if method == "dense":
+            kwargs = dict(attn_type="dense")
+        elif method == "tri_mix":
+            kwargs = dict(
+                attn_type="tri_mix",
+                attn_kwargs={
+                    # test
+                    "last_n": 128,
+                    "starting_layer": starting_layer,
+                    "n_local": 512,
+                    "n_init": 8,
+                },
+            )
+        elif method == "flexprefill":
+            kwargs = dict(
+                attn_type="flexprefill",
+                attn_kwargs={"gamma": gamma},
+            )
+        elif method == "minference":
+            kwargs = dict(
+                attn_type="minference",
+            )
+        elif method == "minference_mix":
+            kwargs = dict(
+                attn_type="minference_mix",
+                attn_kwargs={
+                    "last_n": 128,
+                    "starting_layer": starting_layer,
+                    "n_local": 512,
+                    "n_init": 8,
+                },
+            )
+        elif method == "flexprefill_mix":
+            kwargs = dict(
+                attn_type="flexprefill_mix",
+                attn_kwargs={
+                    "gamma": gamma,
+                    "last_n": 128,
+                    "starting_layer": starting_layer,
+                    "n_local": 512,
+                    "n_init": 8,
+                },
+            )
+        elif method == "xattention":
+            kwargs = dict(
+                attn_type="xattention",
+                attn_kwargs={
+                    "threshold": 0.95,
+                },
+            )
+        elif method == "xattention_mix":
+            kwargs = dict(
+                attn_type="xattention_mix",
+                attn_kwargs={
+                    "threshold": 0.95,
+                    "last_n": 128,
+                    "starting_layer": starting_layer,
+                    "n_local": 512,
+                    "n_init": 8,
+                },
+            )
+        else:
+            raise NotImplementedError
 
-            with torch.no_grad():
-                torch.cuda.synchronize(device=model.device)
-                start_event = torch.cuda.Event(enable_timing=True)
-                end_event = torch.cuda.Event(enable_timing=True)
-                start_event.record()
-                model(input_ids, use_cache=False)
-                torch.cuda.synchronize(device=model.device)
-                end_event.record()
-                torch.cuda.synchronize(device=model.device)
-                elapsed_time_ms = start_event.elapsed_time(end_event)
-            torch.cuda.empty_cache()
-            dur_list.append((elapsed_time_ms) / 1000.0)
-            # print((elapsed_time_ms) / 1000.)
-        print("seq_len: {:<20} time: {:.2f}s".format(seq_len, np.mean(dur_list)))
-        print("---------------------------")
-        ret_list.append(
-            {
-                "model": model_name_to_saving_name[model_name],
-                "method": method,
-                "seq_len": seq_len,
-                "time": np.mean(dur_list),
-            }
+        print(kwargs)
+        model_name_to_saving_name = {
+            "meta-llama/Llama-3.1-8B-Instruct": "Llama-3.1-8B-Instruct",
+            "gradientai/Llama-3-8B-Instruct-262k": "Llama-3-8B-Instruct-262k",
+            "Qwen/Qwen2.5-7B-Instruct": "Qwen2.5-7B-Instruct",
+        }
+        tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
+
+        minference_patch = MInference(
+            model_name=model_name,
+            config_path=None,
+            starting_layer=-1,
+            kv_type="dense",
+            is_search=False,
+            kv_cache_cpu=False,
+            kv_cache_cpu_device="cpu",
+            **kwargs,
         )
+
+        if with_tp_plan:
+            print("use tp plan")
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
+                trust_remote_code=True,
+                attn_implementation="flash_attention_2",
+                tp_plan="auto",
+            )
+        else:
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
+                trust_remote_code=True,
+                attn_implementation="flash_attention_2",
+            )
+
+        model = minference_patch(model)
+        samples = quick_get_random_kv_samples(
+            model_name, tokenizer, 3000, n_kv_num=6000, n_sample=n_times
+        )
+
+        # warmup
+        for seq_len in seq_len_list:
+            input_ids = samples[0]["input_ids"][:seq_len]
+            input_ids = torch.tensor([input_ids], device=model.device)
+            with torch.no_grad():
+                model(input_ids, use_cache=False)
+            torch.cuda.empty_cache()
+
+        # start test
+        print("---------------------------")
+        for seq_len in seq_len_list:
+            dur_list = []
+            for i in range(n_times):
+                sample = samples[i]
+                input_ids = sample["input_ids"]
+                # print(len(input_ids))
+                assert len(input_ids) >= seq_len
+                input_ids = input_ids[:seq_len]
+                input_ids = torch.tensor([input_ids], device=model.device)
+
+                with torch.no_grad():
+                    torch.cuda.synchronize(device=model.device)
+                    start_event = torch.cuda.Event(enable_timing=True)
+                    end_event = torch.cuda.Event(enable_timing=True)
+                    start_event.record()
+                    model(input_ids, use_cache=False)
+                    torch.cuda.synchronize(device=model.device)
+                    end_event.record()
+                    torch.cuda.synchronize(device=model.device)
+                    elapsed_time_ms = start_event.elapsed_time(end_event)
+                torch.cuda.empty_cache()
+                dur_list.append((elapsed_time_ms) / 1000.0)
+                # print((elapsed_time_ms) / 1000.)
+            print("seq_len: {:<20} time: {:.2f}s".format(seq_len, np.mean(dur_list)))
+            print("---------------------------")
+            ret_list.append(
+                {
+                    "model": model_name_to_saving_name[model_name],
+                    "starting_layer": starting_layer,
+                    "method": method,
+                    "seq_len": seq_len,
+                    "time": np.mean(dur_list),
+                }
+            )
 
     if gamma != 0.95:
         method = "{}_{:.2f}".format(method, gamma)
