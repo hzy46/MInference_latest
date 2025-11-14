@@ -110,7 +110,7 @@ def attn_forward(
         bsz, q_len, self.num_key_value_heads, self.head_dim
     ).transpose(1, 2)
 
-    if self.use_qk_norm:
+    if hasattr(self, "use_qk_norm") and self.use_qk_norm:
         query_states = self.q_norm(query_states)
         key_states = self.k_norm(key_states)
 
