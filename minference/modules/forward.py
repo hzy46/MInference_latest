@@ -46,6 +46,14 @@ def attn_forward(
 ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
     output_attentions = False
 
+    # for gated attention work around
+    headwise_attn_output_gate = attn_forward_config.get(
+        "headwise_attn_output_gate", False
+    )
+    elementwise_attn_output_gate = attn_forward_config.get(
+        "elementwise_attn_output_gate", False
+    )
+
     bsz, q_len, _ = hidden_states.size()
 
     if "num_heads" not in self.__dict__:
@@ -64,16 +72,46 @@ def attn_forward(
             qkv, [query_pos, key_value_pos, key_value_pos], -1
         )
 
-    # [bsz, q_len, num_heads, head_dim]
-    query_states = query_states.view(
-        bsz, q_len, self.num_heads, self.head_dim
-    ).transpose(1, 2)
-    key_states = key_states.view(
-        bsz, q_len, self.num_key_value_heads, self.head_dim
-    ).transpose(1, 2)
-    value_states = value_states.view(
-        bsz, q_len, self.num_key_value_heads, self.head_dim
-    ).transpose(1, 2)
+    if headwise_attn_output_gate:
+        query_states = query_states.view(bsz, q_len, self.num_key_value_heads, -1)
+        query_states, gate_score = torch.split(
+            query_states,
+            [self.head_dim * self.num_key_value_groups, self.num_key_value_groups],
+            dim=-1,
+        )
+        gate_score = gate_score.reshape(bsz, q_len, -1, 1)
+        query_states = query_states.reshape(bsz, q_len, -1, self.head_dim).transpose(
+            1, 2
+        )
+    elif elementwise_attn_output_gate:
+        query_states = query_states.view(bsz, q_len, self.num_key_value_heads, -1)
+        query_states, gate_score = torch.split(
+            query_states,
+            [
+                self.head_dim * self.num_key_value_groups,
+                self.head_dim * self.num_key_value_groups,
+            ],
+            dim=-1,
+        )
+        gate_score = gate_score.reshape(bsz, q_len, -1, self.head_dim)
+        query_states = query_states.reshape(bsz, q_len, -1, self.head_dim).transpose(
+            1, 2
+        )
+    else:
+        # [bsz, q_len, num_heads, head_dim]
+        query_states = query_states.view(
+            bsz, q_len, self.num_heads, self.head_dim
+        ).transpose(1, 2)
+        key_states = key_states.view(
+            bsz, q_len, self.num_key_value_heads, self.head_dim
+        ).transpose(1, 2)
+        value_states = value_states.view(
+            bsz, q_len, self.num_key_value_heads, self.head_dim
+        ).transpose(1, 2)
+
+    if self.use_qk_norm:
+        query_states = self.q_norm(query_states)
+        key_states = self.k_norm(key_states)
 
     if position_embeddings is None:
         cos, sin = self.rotary_emb(value_states, position_ids)
@@ -185,6 +223,11 @@ def attn_forward(
             )
 
     assert attn_output.size(1) == q_len
+
+    # gated attention
+    if headwise_attn_output_gate or elementwise_attn_output_gate:
+        attn_output = attn_output * torch.sigmoid(gate_score)
+
     attn_output = attn_output.reshape(bsz, q_len, -1).contiguous()
     attn_output = self.o_proj(attn_output)
 
