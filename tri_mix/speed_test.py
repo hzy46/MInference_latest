@@ -291,7 +291,7 @@ def main(
             else:
                 config = AutoConfig.from_pretrained(model_name)
                 config.num_layers = limit_layers
-                model = AutoModelForCausalLM.from_pretrained(
+                model = AutoModel.from_pretrained(
                     model_name,
                     config=config,
                     torch_dtype=torch.bfloat16,
