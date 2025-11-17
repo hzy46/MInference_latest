@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import torch
 from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer
 
 from minference import MInference
 
@@ -150,6 +150,7 @@ def main(
     starting_layers=None,
     gamma=None,
     with_tp_plan=False,
+    limit_layers=None,
 ):
     seq_len_list = [
         # 4000,
@@ -166,7 +167,8 @@ def main(
         # 72000,
         # 80000,
         # 96000,
-        256000,
+        # 256000,
+        512000,
     ]
     n_times = 1
     if starting_layers is None:
@@ -278,13 +280,25 @@ def main(
                 tp_plan="auto",
             )
         else:
-            model = AutoModelForCausalLM.from_pretrained(
-                model_name,
-                torch_dtype=torch.bfloat16,
-                device_map="auto",
-                trust_remote_code=True,
-                attn_implementation="flash_attention_2",
-            )
+            if limit_layers is None:
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.bfloat16,
+                    device_map="auto",
+                    trust_remote_code=True,
+                    attn_implementation="flash_attention_2",
+                )
+            else:
+                config = AutoConfig.from_pretrained(model_name)
+                config.num_layers = limit_layers
+                model = AutoModelForCausalLM.from_pretrained(
+                    model_name,
+                    config=config,
+                    torch_dtype=torch.bfloat16,
+                    device_map="auto",
+                    trust_remote_code=True,
+                    attn_implementation="flash_attention_2",
+                )
 
         model = minference_patch(model)
         samples = quick_get_random_kv_samples(
