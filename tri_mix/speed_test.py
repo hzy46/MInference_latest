@@ -321,7 +321,9 @@ def main(
         for seq_len in seq_len_list:
             input_ids = samples[0]["input_ids"][:seq_len]
             input_ids = torch.tensor([input_ids], device=model.device)
-            with torch.no_grad():
+            if limit_layers is not None:
+                forward_first_n_layers(model, input_ids, limit_layers)
+            else:
                 model(input_ids, use_cache=False)
             torch.cuda.empty_cache()
 
