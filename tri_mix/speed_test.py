@@ -151,6 +151,7 @@ def main(
     gamma=None,
     with_tp_plan=False,
     limit_layers=None,
+    skip_lm_heads=False,
 ):
     seq_len_list = [
         # 4000,
@@ -330,7 +331,10 @@ def main(
                     start_event = torch.cuda.Event(enable_timing=True)
                     end_event = torch.cuda.Event(enable_timing=True)
                     start_event.record()
-                    model(input_ids, use_cache=False)
+                    if skip_lm_heads:
+                        model.model(input_ids, use_cache=False)
+                    else:
+                        model(input_ids, use_cache=False)
                     torch.cuda.synchronize(device=model.device)
                     end_event.record()
                     torch.cuda.synchronize(device=model.device)
