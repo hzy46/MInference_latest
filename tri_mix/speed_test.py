@@ -144,37 +144,13 @@ def quick_get_random_kv_samples(
     return samples
 
 
-def forward_first_n_layers(model, input_ids, n_layers, attention_mask=None):
-    # 1. embedding
-    hidden_states = model.model.embed_tokens(input_ids)
-
-    # 2. optional attention mask
-    if attention_mask is not None:
-        attention_mask = model._prepare_decoder_attention_mask(
-            attention_mask, input_ids.shape, hidden_states, 0
-        )
-
-    # 3. run first n layers
-    for layer in model.model.layers[:n_layers]:
-        hidden_states = layer(
-            hidden_states,
-            attention_mask=attention_mask,
-            use_cache=False,
-        )[0]
-
-    # 4. final RMSNorm
-    hidden_states = model.model.norm(hidden_states)
-
-    return hidden_states  # 不经过 lm_head
-
-
 def main(
     model_name="meta-llama/Llama-3.1-8B-Instruct",
     method="dense",
     starting_layers=None,
     gamma=None,
     with_tp_plan=False,
-    limit_layers=None,
+    skip_lm_head=False,
 ):
     seq_len_list = [
         # 4000,
@@ -192,7 +168,7 @@ def main(
         # 80000,
         # 96000,
         # 256000,
-        512000,
+        384000,
     ]
     n_times = 1
     if starting_layers is None:
@@ -321,8 +297,8 @@ def main(
         for seq_len in seq_len_list:
             input_ids = samples[0]["input_ids"][:seq_len]
             input_ids = torch.tensor([input_ids], device=model.device)
-            if limit_layers is not None:
-                forward_first_n_layers(model, input_ids, limit_layers)
+            if skip_lm_head:
+                model.model(input_ids, use_cache=False)
             else:
                 model(input_ids, use_cache=False)
             torch.cuda.empty_cache()
@@ -344,8 +320,8 @@ def main(
                     start_event = torch.cuda.Event(enable_timing=True)
                     end_event = torch.cuda.Event(enable_timing=True)
                     start_event.record()
-                    if limit_layers is not None:
-                        forward_first_n_layers(model, input_ids, limit_layers)
+                    if skip_lm_head:
+                        model.model(input_ids, use_cache=False)
                     else:
                         model(input_ids, use_cache=False)
                     torch.cuda.synchronize(device=model.device)
