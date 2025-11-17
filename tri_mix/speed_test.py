@@ -144,6 +144,30 @@ def quick_get_random_kv_samples(
     return samples
 
 
+def forward_first_n_layers(model, input_ids, n_layers, attention_mask=None):
+    # 1. embedding
+    hidden_states = model.model.embed_tokens(input_ids)
+
+    # 2. optional attention mask
+    if attention_mask is not None:
+        attention_mask = model._prepare_decoder_attention_mask(
+            attention_mask, input_ids.shape, hidden_states, 0
+        )
+
+    # 3. run first n layers
+    for layer in model.model.layers[:n_layers]:
+        hidden_states = layer(
+            hidden_states,
+            attention_mask=attention_mask,
+            use_cache=False,
+        )[0]
+
+    # 4. final RMSNorm
+    hidden_states = model.model.norm(hidden_states)
+
+    return hidden_states  # 不经过 lm_head
+
+
 def main(
     model_name="meta-llama/Llama-3.1-8B-Instruct",
     method="dense",
@@ -151,7 +175,6 @@ def main(
     gamma=None,
     with_tp_plan=False,
     limit_layers=None,
-    skip_lm_heads=False,
 ):
     seq_len_list = [
         # 4000,
@@ -281,25 +304,13 @@ def main(
                 tp_plan="auto",
             )
         else:
-            if limit_layers is None:
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    torch_dtype=torch.bfloat16,
-                    device_map="auto",
-                    trust_remote_code=True,
-                    attn_implementation="flash_attention_2",
-                )
-            else:
-                config = AutoConfig.from_pretrained(model_name)
-                config.num_layers = limit_layers
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_name,
-                    config=config,
-                    torch_dtype=torch.bfloat16,
-                    device_map="auto",
-                    trust_remote_code=True,
-                    attn_implementation="flash_attention_2",
-                )
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                torch_dtype=torch.bfloat16,
+                device_map="auto",
+                trust_remote_code=True,
+                attn_implementation="flash_attention_2",
+            )
 
         model = minference_patch(model)
         samples = quick_get_random_kv_samples(
@@ -331,8 +342,8 @@ def main(
                     start_event = torch.cuda.Event(enable_timing=True)
                     end_event = torch.cuda.Event(enable_timing=True)
                     start_event.record()
-                    if skip_lm_heads:
-                        model.model(input_ids, use_cache=False)
+                    if limit_layers is not None:
+                        forward_first_n_layers(model, input_ids, limit_layers)
                     else:
                         model(input_ids, use_cache=False)
                     torch.cuda.synchronize(device=model.device)
