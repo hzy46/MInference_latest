@@ -8,7 +8,7 @@ cd ~
 pip install transformers==4.47.1
 
 cd ~/MInference_latest
-pip install .
+pip install -e . --no-build-isolation
 
 pip install jieba rouge
 pip install tree-sitter==0.21.3
