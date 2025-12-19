@@ -240,9 +240,32 @@ def attn_forward(
     return attn_output, attn_weights, past_key_value
 
 
+def a_shape_kernel_mix(q, k, v, config):
+    layer_idx = config["layer_idx"]
+    a_shape_start_layer = config["attn_forward_config"]["starting_layer"]
+
+    bsz, head_num, q_len, head_dim = q.shape
+    if layer_idx < a_shape_start_layer:
+        # flash attention
+        print("use full")
+        result = flash_attn_func(
+            q.transpose(1, 2),
+            k.transpose(1, 2),
+            v.transpose(1, 2),
+            0.0,
+            softmax_scale=None,
+            causal=q_len != 1,
+        ).transpose(1, 2)
+    else:
+        print("use a shape")
+        result = a_shape_kernel(q, k, v, config)
+    return result
+
+
 prefill_forwards = {  # None = use flash attention
     "dense": None,
     "a_shape": a_shape_kernel,
+    "a_shape_mix": a_shape_kernel_mix,
     "tri_shape": tri_shape_kernel,
     "minference": minference_prefill_forward,
     "flexprefill": flexprefill_forward,

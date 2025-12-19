@@ -113,7 +113,11 @@ class MInference:
             self.config.attn_kwargs.setdefault("n_local", 3968)
             self.config.attn_kwargs.setdefault("n_init", 128)
             model = new_patch(model, self.config)
-
+        elif self.config.attn_type == "a_shape_mix":
+            self.config.attn_kwargs.setdefault("n_local", 3968)
+            self.config.attn_kwargs.setdefault("n_init", 128)
+            self.config.attn_kwargs.setdefault("starting_layer", 16)
+            model = new_patch(model, self.config)
         elif self.config.attn_type == "tri_shape":
             self.config.attn_kwargs.setdefault("n_local", 3968)
             self.config.attn_kwargs.setdefault("n_init", 128)

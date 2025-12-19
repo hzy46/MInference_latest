@@ -21,6 +21,7 @@ class MInferenceConfig:
         "dilated1",
         "dilated2",
         "a_shape",
+        "a_shape_mix",
         "tri_shape",
         "vllm_a_shape",
         "vllm_tri_shape",
