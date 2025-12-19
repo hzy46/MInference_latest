@@ -240,6 +240,9 @@ def attn_forward(
     return attn_output, attn_weights, past_key_value
 
 
+from flash_attn import flash_attn_func
+
+
 def a_shape_kernel_mix(q, k, v, config):
     layer_idx = config["layer_idx"]
     a_shape_start_layer = config["attn_forward_config"]["starting_layer"]
