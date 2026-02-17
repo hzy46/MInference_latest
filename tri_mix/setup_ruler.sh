@@ -19,7 +19,15 @@ pip install flash-attn --no-build-isolation
 pip install datasets jsonlines fire matplotlib pandas seaborn tqdm
 pip install accelerate
 pip install jieba mysql-connector-python fuzzywuzzy rouge jsonlines SentencePiece
-pip install git+https://github.com/NVIDIA/NeMo.git
+# pip install git+https://github.com/NVIDIA/NeMo.git
+
+# 新版 nemo 的 nvlogger 问题
+git clone https://github.com/NVIDIA/NeMo.git
+cd NeMo
+git checkout v2.3.3
+pip install .
+cd ..
+
 pip install nltk  hydra-core wonderwords lightning lhotse  jiwer librosa pyannote-core webdataset editdistance pyannote.metrics tenacity xopen
 pip install html2text bs4
 python -c 'import nltk; nltk.download("punkt_tab")'
