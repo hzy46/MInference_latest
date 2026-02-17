@@ -194,7 +194,7 @@ class KVPressModel:
 
         press = DuoAttentionPress(**self.kwargs)
         answer = self.pipe(
-            context, press=press, max_new_tokens=self.max_new_tokens
+            prompt, press=press, max_new_tokens=self.max_new_tokens
         )["answer"]
         return {"text": [answer]}
 
