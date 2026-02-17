@@ -69,7 +69,7 @@ ROOT_DIR=results # the path that stores generated task samples and model predict
 
 for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
 
-    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_duo_{$THRESHOLD}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
+    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_duo_$THRESHOLD/${BENCHMARK}/${MAX_SEQ_LENGTH}"
     DATA_DIR="${RESULTS_DIR}/data"
     PRED_DIR="${RESULTS_DIR}/pred"
     mkdir -p ${DATA_DIR}
