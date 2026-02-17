@@ -1,4 +1,4 @@
-# Copyright (c) 2024 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 """
@@ -44,6 +44,7 @@ SERVER_TYPES = (
     "a_shape",
     "InfLLM",
     "minference_with_dense",
+    "kvpress",
 )
 
 
@@ -111,6 +112,9 @@ parser.add_argument("--trust_remote_code", action="store_true")
 parser.add_argument("--attn_type", type=str, default="minference")
 parser.add_argument("--attn_kwargs", type=json.loads, default={})
 
+# KV Press
+parser.add_argument("--press_kwargs", type=json.loads, default={})
+
 args = parser.parse_args()
 args.stop_words = list(filter(None, args.stop_words.split(",")))
 # if args.server_type == 'hf' or args.server_type == 'gemini' or args.server_type == 'minference':
@@ -121,6 +125,7 @@ if args.server_type in [
     "a_shape",
     "InfLLM",
     "minference_with_dense",
+    "kvpress",
 ]:
     args.threads = 1
 
@@ -219,6 +224,15 @@ def get_llm(tokens_to_generate):
             starting_layer=args.starting_layer,
             attn_type=args.attn_type,
             attn_kwargs=args.attn_kwargs,
+        )
+
+    elif args.server_type == "kvpress":
+        from model_wrappers import KVPressModel
+
+        llm = KVPressModel(
+            name_or_path=args.model_name_or_path,
+            max_new_tokens=tokens_to_generate,
+            press_kwargs=args.press_kwargs,
         )
 
     elif args.server_type == "InfLLM":

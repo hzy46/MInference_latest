@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 export TOKENIZERS_PARALLELISM=false
@@ -7,12 +7,9 @@ RULER_PATH=$(dirname $0)
 python -c "import nltk; nltk.download('punkt')"
 
 SEQ_LENGTHS=(
-    # 4096
-    # 8192
-    # 16384
-    # 32768
-    # 65536
-    131072
+    4096
+    8192
+    16384
 )
 
 TASKS=(

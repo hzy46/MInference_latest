@@ -1,84 +1,19 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
-
-# 检查环境变量 ZHIYUHE 是否设置
-if [ -z "$ZHIYUHE" ]; then
-    echo "Error: Environment variable ZHIYUHE is not set."
-    exit 1
-fi
-
-REMOTE_SAVE_DIR=$ZHIYUHE/250916_ruler/minference_mix_per_layer_nlast512/
-mkdir -p $REMOTE_SAVE_DIR
-MODEL_FRAMEWORK=minference
-ROOT_DIR=results_minference_mix_per_layer
-
-
-MODEL_NAME=$1
-TRI_LAYER_NUM=$2
-LENGTH_TYPE=$3
-
-if [ "$3" = "long" ]; then
-    SEQ_LENGTHS=(
-        32768
-        65536
-        131072
-    )
-elif [ "$3" = "short" ]; then
-    SEQ_LENGTHS=(
-        4096
-        8192
-        16384
-    )
-elif [ "$3" = "all" ]; then
-    SEQ_LENGTHS=(
-        4096
-        8192
-        16384
-        32768
-        65536
-        131072
-    )
-else
-    echo "Error: third argument must be 'long', 'short', or 'all'"
-    exit 1
-fi
-
-
-# 根据 model_name 选择对应的列表
-if [[ "$MODEL_NAME" == *"Llama-3.1-8B-Instruct"* ]]; then
-    list=(31 30 29 24 25 28 22 23 21 26 27 20 18 17 19 16 3 0 15 14 12 1 4 6 9 5 2 10 7 11 13 8)
-elif [[ "$MODEL_NAME" == *"Llama-3-8B-Instruct-262k"* ]]; then
-    list=(31 30 29 28 23 24 22 25 21 26 18 20 16 27 17 19 12 3 0 15 1 14 6 5 9 4 13 7 2 10 11 8)
-elif [[ "$MODEL_NAME" == *"Qwen2.5-7B-Instruct"* ]]; then
-    list=(27 26 25 24 23 22 6 21 10 3 1 7 18 19 9 15 20 17 13 4 2 8 12 16 14 11 5 0)
-else
-    echo "Error: Unsupported MODEL_NAME: $MODEL_NAME"
-    exit 1
-fi
-
-# 取前 TRI_LAYER_NUM 个
-selected=("${list[@]:0:$TRI_LAYER_NUM}")
-
-# 拼接成 "[xx,xx,xx]" 的字符串
-tri_layer_idx_list_str="["
-for i in "${!selected[@]}"; do
-    if [ $i -gt 0 ]; then
-        tri_layer_idx_list_str+=","
-    fi
-    tri_layer_idx_list_str+="${selected[$i]}"
-done
-tri_layer_idx_list_str+="]"
-
-# 输出结果
-echo "$tri_layer_idx_list_str"
-
 
 export TOKENIZERS_PARALLELISM=false
 RULER_PATH=$(dirname $0)
 python -c "import nltk; nltk.download('punkt')"
 
-NUM_SAMPLES=100
+SEQ_LENGTHS=(
+    4096
+    8192
+    16384
+    32768
+    65536
+    131072
+)
 
 TASKS=(
     "niah_single_1"
@@ -97,14 +32,16 @@ TASKS=(
 )
 
 # Experiment Setup
+NUM_SAMPLES=100
 TEMPERATURE="0.0"
 TOP_P="1.0"
 TOP_K="32"
 
 # The model
+MODEL_NAME=$1
 BENCHMARK="synthetic"
 MODEL_TEMPLATE_TYPE="base"
-
+MODEL_FRAMEWORK=$2
 
 # MInference
 STARTING_LAYER=-1
@@ -136,10 +73,12 @@ fi
 
 # Gpu and output path
 GPUS="1" # GPU size for tensor_parallel.
+ROOT_DIR=$3 # the path that stores generated task samples and model predictions.
+STARTING_LAYER_TRI_MIX=$4
 
 for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
 
-    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_by_gradient_tri_num_${TRI_LAYER_NUM}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
+    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
     DATA_DIR="${RESULTS_DIR}/data"
     PRED_DIR="${RESULTS_DIR}/pred"
     mkdir -p ${DATA_DIR}
@@ -163,8 +102,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type minference_mix_per_layer \
-            --attn_kwargs "{\"tri_layer_idx_list\": $tri_layer_idx_list_str, \"n_local\": 512, \"n_init\": 8, \"last_n\": 512}" \
+            --attn_type flexprefill \
+            --attn_kwargs "{\"gamma\": 0.95}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \
@@ -178,6 +117,3 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
         --data_dir ${PRED_DIR} \
         --benchmark ${BENCHMARK}
 done
-
-
-cp -r ${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_by_gradient_tri_num_${TRI_LAYER_NUM} $REMOTE_SAVE_DIR

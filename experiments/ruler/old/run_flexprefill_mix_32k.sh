@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 export TOKENIZERS_PARALLELISM=false
@@ -7,9 +7,6 @@ RULER_PATH=$(dirname $0)
 python -c "import nltk; nltk.download('punkt')"
 
 SEQ_LENGTHS=(
-    4096
-    8192
-    16384
     32768
     65536
     131072
@@ -42,6 +39,18 @@ MODEL_NAME=$1
 BENCHMARK="synthetic"
 MODEL_TEMPLATE_TYPE="base"
 MODEL_FRAMEWORK=$2
+
+if [[ "$MODEL_NAME" == *"Qwen2.5-7B-Instruct-Yarn"* ]]; then
+    SAVE_MODEL_NAME="Qwen/Qwen2.5-7B-Instruct-Yarn"
+    SEQ_LENGTHS=(
+        32768
+        65536
+        131072
+    )
+else
+    SAVE_MODEL_NAME=$MODEL_NAME
+fi
+
 
 # MInference
 STARTING_LAYER=-1
@@ -78,7 +87,7 @@ STARTING_LAYER_TRI_MIX=$4
 
 for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
 
-    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
+    RESULTS_DIR="${ROOT_DIR}/${SAVE_MODEL_NAME}_${MODEL_FRAMEWORK}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
     DATA_DIR="${RESULTS_DIR}/data"
     PRED_DIR="${RESULTS_DIR}/pred"
     mkdir -p ${DATA_DIR}
@@ -102,8 +111,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type flexprefill \
-            --attn_kwargs "{\"gamma\": 0.95}" \
+            --attn_type flexprefill_mix \
+            --attn_kwargs "{\"gamma\": 0.95, \"starting_layer\": ${STARTING_LAYER_TRI_MIX}, \"n_local\": 512, \"n_init\": 8, \"last_n\": 128}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \

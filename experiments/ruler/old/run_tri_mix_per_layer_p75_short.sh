@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 export TOKENIZERS_PARALLELISM=false
@@ -10,6 +10,9 @@ SEQ_LENGTHS=(
     4096
     8192
     16384
+    # 32768
+    # 65536
+    # 131072
 )
 
 TASKS=(
@@ -99,8 +102,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type xattention \
-            --attn_kwargs "{\"threshold\": 0.95}" \
+            --attn_type tri_mix_per_layer \
+            --attn_kwargs "{\"tri_layer_idx_list\": [27, 26, 25, 24, 23, 22, 6, 21]}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \
@@ -109,7 +112,6 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             ${EXTRA_PARAMS} \
             ${STOP_WORDS}
     done
-
 
     python ${RULER_PATH}/eval/evaluate.py \
         --data_dir ${PRED_DIR} \

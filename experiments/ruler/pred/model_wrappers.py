@@ -1,4 +1,4 @@
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 import json
@@ -158,6 +158,52 @@ class MInferenceModel:
             for s in self.stop:
                 generated_text = generated_text.split(s)[0]
         return {"text": [generated_text]}
+
+
+class KVPressModel:
+    def __init__(
+        self,
+        name_or_path: str,
+        max_new_tokens: int = 100,
+        press_kwargs: dict = {},
+    ) -> None:
+        from kvpress import DuoAttentionPress
+        from transformers import pipeline
+
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            name_or_path,
+            trust_remote_code=True,
+            resume_download=None,
+        )
+        pipe = pipeline(
+            "kv-press-text-generation",
+            model=name_or_path,
+            device_map="auto",
+            dtype=torch.bfloat16,
+        )
+        self.pipe = pipe
+        self.max_new_tokens = max_new_tokens
+        kwargs = {
+            "head_compression_ratio": 0.5,
+            "on_the_fly_scoring": True,
+            "sink_size": 8,
+            "recent_size": 256,
+        }
+        for k, v in press_kwargs.items():
+            kwargs[k] = v
+        print(kwargs)
+        self.kwargs = kwargs
+
+    def __call__(self, prompt: str, **kwargs) -> Dict[str, List[str]]:
+        from kvpress import DuoAttentionPress
+
+        torch.cuda.empty_cache()
+
+        press = DuoAttentionPress(**self.kwargs)
+        answer = pipe(
+            context, question=question, press=press, max_new_tokens=self.max_new_tokens
+        )["answer"]
+        return {"text": [answer]}
 
 
 class InfLLM(MInferenceModel):

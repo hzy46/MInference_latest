@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 # 检查环境变量 ZHIYUHE 是否设置
@@ -8,10 +8,10 @@ if [ -z "$ZHIYUHE" ]; then
     exit 1
 fi
 
-REMOTE_SAVE_DIR=$ZHIYUHE/250916_ruler/minference_mix_per_layer/
+REMOTE_SAVE_DIR=$ZHIYUHE/250916_ruler/xattention_mix_per_layer_nlast512/
 mkdir -p $REMOTE_SAVE_DIR
 MODEL_FRAMEWORK=minference
-ROOT_DIR=results_minference_mix_per_layer
+ROOT_DIR=results_xattention_mix_per_layer
 
 
 MODEL_NAME=$1
@@ -163,8 +163,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type minference_mix_per_layer \
-            --attn_kwargs "{\"tri_layer_idx_list\": $tri_layer_idx_list_str, \"n_local\": 512, \"n_init\": 8, \"last_n\": 128}" \
+            --attn_type xattention_mix_per_layer \
+            --attn_kwargs "{\"tri_layer_idx_list\": $tri_layer_idx_list_str, \"threshold\": 0.95, \"n_local\": 512, \"n_init\": 8, \"last_n\": 512}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \

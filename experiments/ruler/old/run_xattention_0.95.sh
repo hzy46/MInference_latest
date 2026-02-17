@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 export TOKENIZERS_PARALLELISM=false
@@ -7,28 +7,28 @@ RULER_PATH=$(dirname $0)
 python -c "import nltk; nltk.download('punkt')"
 
 SEQ_LENGTHS=(
-    # 4096
-    # 8192
-    # 16384
-    # 32768
+    4096
+    8192
+    16384
+    32768
     65536
     131072
 )
 
 TASKS=(
-    # "niah_single_1"
-    # "niah_single_2"
-    # "niah_single_3"
-    # "niah_multikey_1"
-    # "niah_multikey_2"
+    "niah_single_1"
+    "niah_single_2"
+    "niah_single_3"
+    "niah_multikey_1"
+    "niah_multikey_2"
     "niah_multikey_3"
-    # "niah_multivalue"
-    # "niah_multiquery"
-    # "vt"
-    # "cwe"
-    # "fwe"
-    # "qa_1"
-    # "qa_2"
+    "niah_multivalue"
+    "niah_multiquery"
+    "vt"
+    "cwe"
+    "fwe"
+    "qa_1"
+    "qa_2"
 )
 
 # Experiment Setup
@@ -102,8 +102,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type tri_mix_per_layer \
-            --attn_kwargs "{\"tri_layer_idx_list\": [27, 26, 25, 24, 23, 22, 6, 21, 10, 3, 1, 7, 18, 19, 9, 15]}" \
+            --attn_type xattention \
+            --attn_kwargs "{\"threshold\": 0.95}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \
@@ -112,6 +112,7 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             ${EXTRA_PARAMS} \
             ${STOP_WORDS}
     done
+
 
     python ${RULER_PATH}/eval/evaluate.py \
         --data_dir ${PRED_DIR} \

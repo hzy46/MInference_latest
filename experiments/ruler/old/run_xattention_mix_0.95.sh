@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 export TOKENIZERS_PARALLELISM=false
@@ -7,6 +7,9 @@ RULER_PATH=$(dirname $0)
 python -c "import nltk; nltk.download('punkt')"
 
 SEQ_LENGTHS=(
+    4096
+    8192
+    16384
     32768
     65536
     131072
@@ -99,8 +102,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type xattention \
-            --attn_kwargs "{\"threshold\": 0.95}" \
+            --attn_type xattention_mix \
+            --attn_kwargs "{\"threshold\": 0.95, \"n_local\": 512, \"n_init\": 8, \"n_last\": 128, \"starting_layer\": 16}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \

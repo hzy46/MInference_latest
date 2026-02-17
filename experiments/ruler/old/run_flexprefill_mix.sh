@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 export TOKENIZERS_PARALLELISM=false
@@ -10,9 +10,9 @@ SEQ_LENGTHS=(
     4096
     8192
     16384
-    # 32768
-    # 65536
-    # 131072
+    32768
+    65536
+    131072
 )
 
 TASKS=(
@@ -102,8 +102,8 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type tri_mix_per_layer \
-            --attn_kwargs "{\"tri_layer_idx_list\": [27, 26, 25, 24, 23, 22, 6, 21]}" \
+            --attn_type flexprefill_mix \
+            --attn_kwargs "{\"gamma\": 0.95, \"starting_layer\": ${STARTING_LAYER_TRI_MIX}, \"n_local\": 512, \"n_init\": 8, \"last_n\": 128}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \

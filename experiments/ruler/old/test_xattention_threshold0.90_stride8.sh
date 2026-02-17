@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 # 检查环境变量 ZHIYUHE 是否设置
@@ -8,7 +8,7 @@ if [ -z "$ZHIYUHE" ]; then
     exit 1
 fi
 
-REMOTE_SAVE_DIR=$ZHIYUHE/250916_ruler/xattention_threshold0.95_stride16/
+REMOTE_SAVE_DIR=$ZHIYUHE/250916_ruler/xattention_threshold0.90_stride8/
 mkdir -p $REMOTE_SAVE_DIR
 MODEL_FRAMEWORK=minference
 ROOT_DIR=results_xattention
@@ -164,7 +164,7 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
             --attn_type xattention \
-            --attn_kwargs "{\"threshold\": 0.95, \"stride\": 16}" \
+            --attn_kwargs "{\"threshold\": 0.90, \"stride\": 8}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \

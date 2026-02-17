@@ -1,15 +1,29 @@
 #!/bin/bash
-# Copyright (c) 2024-2025 Microsoft
+# Copyright (c) 2024-2026 Microsoft
 # Licensed under The MIT License [see LICENSE for details]
 
 export TOKENIZERS_PARALLELISM=false
 RULER_PATH=$(dirname $0)
 python -c "import nltk; nltk.download('punkt')"
 
+MODEL_NAME=$1
+THRESHOLD=$2 # 0.28, 0.5
+
+
+# 检查环境变量 ZHIYUHE 是否设置
+if [ -z "$ZHIYUHE" ]; then
+    echo "Error: Environment variable ZHIYUHE is not set."
+    exit 1
+fi
+
+REMOTE_SAVE_DIR=$ZHIYUHE/260217_ruler/
+mkdir -p $REMOTE_SAVE_DIR
+
+
 SEQ_LENGTHS=(
-    4096
-    8192
-    16384
+    # 4096
+    # 8192
+    # 16384
     32768
     65536
     131072
@@ -38,10 +52,9 @@ TOP_P="1.0"
 TOP_K="32"
 
 # The model
-MODEL_NAME=$1
 BENCHMARK="synthetic"
 MODEL_TEMPLATE_TYPE="base"
-MODEL_FRAMEWORK=$2
+MODEL_FRAMEWORK=kvpress
 
 # MInference
 STARTING_LAYER=-1
@@ -49,36 +62,14 @@ KV_CACHE_CPU="false"
 USE_SNAPKV="false"
 TRUST_REMOTE_CODE="true"
 
-if [ "${MODEL_FRAMEWORK}" == "minference" ]; then
-    MINFERENCE_PARAMS="--starting_layer ${STARTING_LAYER}"
-
-    if [ -n "${CONFIG_PATH}" ]; then
-        MINFERENCE_PARAMS="${MINFERENCE_PARAMS} --config_path ${CONFIG_PATH}"
-    fi
-
-    if [ "${USE_SNAPKV}" == "true" ]; then
-        MINFERENCE_PARAMS="${MINFERENCE_PARAMS} --use_snapkv"
-    fi
-
-    echo "MInference enabled with params: ${MINFERENCE_PARAMS}"
-fi
-
-if [ "${TRUST_REMOTE_CODE}" == "true" ]; then
-    EXTRA_PARAMS="${EXTRA_PARAMS} --trust_remote_code"
-fi
-
-if [ "${KV_CACHE_CPU}" == "true" ]; then
-    EXTRA_PARAMS="${EXTRA_PARAMS} --kv_cache_cpu --kv_cache_cpu_device cpu"
-fi
 
 # Gpu and output path
 GPUS="1" # GPU size for tensor_parallel.
-ROOT_DIR=$3 # the path that stores generated task samples and model predictions.
-STARTING_LAYER_TRI_MIX=$4
+ROOT_DIR=results # the path that stores generated task samples and model predictions.
 
 for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
 
-    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
+    RESULTS_DIR="${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_duo_{$THRESHOLD}/${BENCHMARK}/${MAX_SEQ_LENGTH}"
     DATA_DIR="${RESULTS_DIR}/data"
     PRED_DIR="${RESULTS_DIR}/pred"
     mkdir -p ${DATA_DIR}
@@ -102,8 +93,7 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --benchmark ${BENCHMARK} \
             --task ${TASK} \
             --server_type ${MODEL_FRAMEWORK} \
-            --attn_type tri_mix_per_layer \
-            --attn_kwargs "{\"tri_layer_idx_list\": [27, 26, 25, 24, 23, 22, 6, 21, 10, 3, 1, 7, 18, 19, 9, 15]}" \
+            --press_kwargs "{\"head_compression_ratio\": ${THRESHOLD}}" \
             --model_name_or_path ${MODEL_NAME} \
             --temperature ${TEMPERATURE} \
             --top_k ${TOP_K} \
@@ -113,7 +103,11 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             ${STOP_WORDS}
     done
 
+
     python ${RULER_PATH}/eval/evaluate.py \
         --data_dir ${PRED_DIR} \
         --benchmark ${BENCHMARK}
 done
+
+
+cp -r ${ROOT_DIR}/${MODEL_NAME}_${MODEL_FRAMEWORK}_duo_{$THRESHOLD} $REMOTE_SAVE_DIR
