@@ -21,7 +21,6 @@ ROOT_DIR=results # the path that stores generated task samples and model predict
 # 根据 model_name 选择对应的列表
 if [[ "$MODEL_NAME" == *"Llama-3.1-8B-Instruct"* ]]; then
     list=(31 30 29 24 25 28 22 23 21 26 27 20 18 17 19 16 3 0 15 14 12 1 4 6 9 5 2 10 7 11 13 8)
-    save_dir_name=
 elif [[ "$MODEL_NAME" == *"Llama-3-8B-Instruct-262k"* ]]; then
     list=(31 30 29 28 23 24 22 25 21 26 18 20 16 27 17 19 12 3 0 15 1 14 6 5 9 4 13 7 2 10 11 8)
 elif [[ "$MODEL_NAME" == *"Qwen2.5-7B-Instruct"* ]]; then
