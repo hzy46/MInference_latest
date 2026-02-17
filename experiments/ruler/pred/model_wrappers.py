@@ -170,11 +170,6 @@ class KVPressModel:
         from kvpress import DuoAttentionPress
         from transformers import pipeline
 
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            name_or_path,
-            trust_remote_code=True,
-            resume_download=None,
-        )
         pipe = pipeline(
             "kv-press-text-generation",
             model=name_or_path,
