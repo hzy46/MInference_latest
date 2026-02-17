@@ -181,8 +181,6 @@ class KVPressModel:
         kwargs = {
             "head_compression_ratio": 0.5,
             "on_the_fly_scoring": True,
-            "sink_size": 8,
-            "recent_size": 256,
         }
         for k, v in press_kwargs.items():
             kwargs[k] = v
@@ -195,8 +193,8 @@ class KVPressModel:
         torch.cuda.empty_cache()
 
         press = DuoAttentionPress(**self.kwargs)
-        answer = pipe(
-            context, question=question, press=press, max_new_tokens=self.max_new_tokens
+        answer = self.pipe(
+            context, press=press, max_new_tokens=self.max_new_tokens
         )["answer"]
         return {"text": [answer]}
 
