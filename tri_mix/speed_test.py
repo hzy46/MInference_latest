@@ -206,6 +206,14 @@ def main(
                     "n_init": 8,
                 },
             )
+        elif method == "a_shape":
+            kwargs = dict(
+                attn_type="a_shape",
+                attn_kwargs={
+                    "n_local": 512,
+                    "n_init": 8,
+                },
+            )
         elif method == "flexprefill":
             kwargs = dict(
                 attn_type="flexprefill",
