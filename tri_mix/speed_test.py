@@ -163,14 +163,14 @@ def main(
         # 96000,
         # 112000,
         # 128000,
-        # 64000,
+        64000,
         # 72000,
         # 80000,
         # 96000,
         # 256000,
-        384000,
+        # 384000,
     ]
-    n_times = 1
+    n_times = 3
     if starting_layers is None:
         if model_name == "meta-llama/Llama-3.1-8B-Instruct":
             starting_layers = [16]
@@ -193,6 +193,15 @@ def main(
                 attn_kwargs={
                     # test
                     "last_n": 128,
+                    "starting_layer": starting_layer,
+                    "n_local": 512,
+                    "n_init": 8,
+                },
+            )
+        elif method == "a_shape_mix":
+            kwargs = dict(
+                attn_type="a_shape_mix",
+                attn_kwargs={
                     "starting_layer": starting_layer,
                     "n_local": 512,
                     "n_init": 8,
