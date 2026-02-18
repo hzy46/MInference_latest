@@ -296,7 +296,7 @@ def main(
                 attn_implementation="flash_attention_2",
             )
 
-        print(model.config.attn_implementation)
+        print(model.config._attn_implementation)
         model = minference_patch(model)
         samples = quick_get_random_kv_samples(
             model_name, tokenizer, 3000, n_kv_num=6000, n_sample=n_times
