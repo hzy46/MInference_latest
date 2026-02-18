@@ -303,15 +303,16 @@ def main(
         )
 
         # warmup
-        for seq_len in seq_len_list:
-            input_ids = samples[0]["input_ids"][:seq_len]
-            input_ids = torch.tensor([input_ids], device=model.device)
-            print(input_ids.shape)
-            if skip_lm_head:
-                model.model(input_ids, use_cache=False)
-            else:
-                model(input_ids, use_cache=False)
-            torch.cuda.empty_cache()
+        with torch.no_grad():
+            for seq_len in seq_len_list:
+                input_ids = samples[0]["input_ids"][:seq_len]
+                input_ids = torch.tensor([input_ids], device=model.device)
+                print(input_ids.shape)
+                if skip_lm_head:
+                    model.model(input_ids, use_cache=False)
+                else:
+                    model(input_ids, use_cache=False)
+                torch.cuda.empty_cache()
 
         # start test
         print("---------------------------")
