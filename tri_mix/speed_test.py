@@ -153,12 +153,12 @@ def main(
     skip_lm_head=False,
 ):
     seq_len_list = [
-        4000,
+        # 4000,
         # 8000,
         # 16000,
         # 32000,
         # 48000,
-        # 64000,
+        64000,
         # 80000,
         # 96000,
         # 112000,
@@ -296,7 +296,7 @@ def main(
                 attn_implementation="flash_attention_2",
             )
 
-        print(model.config)
+        print(model.config.attn_implementation)
         model = minference_patch(model)
         samples = quick_get_random_kv_samples(
             model_name, tokenizer, 3000, n_kv_num=6000, n_sample=n_times
